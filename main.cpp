@@ -34,7 +34,7 @@ void display ( void )
 
 void reshape ( int w, int h )
 {
-	glViewport( 0, 0, 100, 100 );
+	glViewport( 0, 0, w , h );
 	glMatrixMode( GL_PROJECTION );  
 	glLoadIdentity();                
 	gluOrtho2D(SCREEN_LEFT, SCREEN_RIGHT, SCREEN_BOTTOM, SCREEN_TOP);
