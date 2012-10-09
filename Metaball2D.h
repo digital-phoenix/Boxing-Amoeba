@@ -1,3 +1,5 @@
+#ifndef METABALL2D_H_
+#define METABALL2D_H_
 
 class Metaball2D
 {
@@ -17,10 +19,15 @@ public:
 		return (radius/sqrt( (x -px)*(x-px) + (y-py)*(y-py)));
 	}
 
-	void move()
+	void move(double x, double y)
 	{
-		px = rand()%1000;
-		py = rand()%1000;
+		px = x;
+		py = y;
+	}
+
+	void shift(double x, double y){
+		px += x;
+		py += y;
 	}
 	
 	
@@ -30,3 +37,4 @@ private:
 	double radius;
 };
 
+#endif

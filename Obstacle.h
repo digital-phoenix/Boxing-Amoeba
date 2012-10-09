@@ -1,3 +1,6 @@
+#ifndef OBSTACLE_H_
+#define OBSTACLE_H_
+
 #include"Sprite.h"
 
 class Obstacle : Sprite  {
@@ -6,3 +9,5 @@ class Obstacle : Sprite  {
 		virtual bool collision(Sprite*) = 0;
 		virtual void update() = 0;
 };
+
+#endif

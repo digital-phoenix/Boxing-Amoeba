@@ -1,8 +1,27 @@
+#ifndef AMOEBA_H_
+#define AMOEBA_H_
+
 #include"Sprite.h"
+#include"Metaball2DGroup.h"
 
 class Amoeba : Sprite  {
+	private:
+		Metaball2DGroup balls;
+		double velX, velY;
+
 	public:
-		virtual void draw() = 0;
-		virtual bool collision(Sprite*) = 0;
-		virtual void update() = 0;
+
+		Amoeba();
+		
+		void draw(){
+			balls.draw();
+		};
+
+		bool collision(Sprite*){ return false;};
+
+		void update(){
+			balls.shiftGroup(velX, velY);		
+		};
 };
+
+#endif

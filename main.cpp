@@ -1,15 +1,17 @@
 
-#include<windows.h>
-#include<gl/gl.h>     
-#include<gl/glut.h>   
-#include<list>
-#include"Sprite.h"
+#include <windows.h>
+#include <gl/gl.h>     
+#include <gl/glut.h>   
+#include <list>
+#include "Sprite.h"
+#include "Amoeba.h"
+#include "GraphicState.h"
 
 std::list<Sprite*> sprites;
 
 void init ( GLvoid )   
 {
-
+	sprites.push_back( (Sprite*) (new Amoeba()) );
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	glEnable ( GL_COLOR_MATERIAL );
@@ -32,10 +34,10 @@ void display ( void )
 
 void reshape ( int w, int h )
 {
-	glViewport( 0, 0, w, h );
+	glViewport( 0, 0, 100, 100 );
 	glMatrixMode( GL_PROJECTION );  
 	glLoadIdentity();                
-	gluOrtho2D(0,100,0,100);
+	gluOrtho2D(SCREEN_LEFT, SCREEN_RIGHT, SCREEN_BOTTOM, SCREEN_TOP);
 	glMatrixMode( GL_MODELVIEW );  
 }
 
