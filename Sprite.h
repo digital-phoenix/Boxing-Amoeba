@@ -1,3 +1,6 @@
+#ifndef SPRITE_H_
+#define SPRITE_H_
+
 #include<iostream>
 #include<windows.h>
 #include<gl/gl.h>     
@@ -8,4 +11,7 @@ class Sprite{
 		virtual void draw() = 0;
 		virtual bool collision(Sprite*) = 0;
 		virtual void update() = 0;
+		virtual void setVel(double x, double y) = 0;
 };
+
+#endif
