@@ -6,9 +6,9 @@
 #include<gl/gl.h>     
 #include<gl/glut.h>   
 
-#define SCREEN_LEFT -50
-#define SCREEN_RIGHT 50
-#define SCREEN_TOP 50
-#define SCREEN_BOTTOM -50
+extern int screenLeft;
+extern  int screenRight;
+extern  int screenTop;
+extern  int screenBottom;
 
 #endif

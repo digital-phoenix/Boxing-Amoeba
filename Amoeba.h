@@ -22,6 +22,19 @@ class Amoeba : Sprite  {
 		void update(){
 			balls.shiftGroup(velX, velY);		
 		};
+
+		void setVelx( double x){
+			velX = x;
+		}
+
+		void setVely( double y){
+			velY = y;
+		}
+
+		void setVelocity( double x, double y){
+			setVelx(x);
+			setVely(y);
+		}
 };
 
 #endif

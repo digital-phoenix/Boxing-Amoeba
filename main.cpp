@@ -8,12 +8,19 @@
 #include "GraphicState.h"
 
 std::list<Sprite*> sprites;
+Amoeba player;
+
+int screenLeft = 0;
+int screenRight = 0;
+int screenTop = 0;
+int screenBottom = 0;
 
 void init ( GLvoid )   
 {
-	sprites.push_back( (Sprite*) (new Amoeba()) );
+	player = Amoeba();
+	sprites.push_back( (Sprite*) (&player) );
 	glShadeModel(GL_SMOOTH);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable ( GL_COLOR_MATERIAL );
 }
 
@@ -29,15 +36,20 @@ void display ( void )
 		}
 		s->draw();
 	}
+
 	glutSwapBuffers ( );
+	glutPostRedisplay();
 }
 
 void reshape ( int w, int h )
 {
 	glViewport( 0, 0, w , h );
 	glMatrixMode( GL_PROJECTION );  
-	glLoadIdentity();                
-	gluOrtho2D(SCREEN_LEFT, SCREEN_RIGHT, SCREEN_BOTTOM, SCREEN_TOP);
+	glLoadIdentity();   
+	
+	screenRight = w;
+	screenTop = h;
+	gluOrtho2D(screenLeft, screenRight, screenBottom, screenTop);
 	glMatrixMode( GL_MODELVIEW );  
 }
 
@@ -49,9 +61,17 @@ void arrow_keys ( int a_keys, int x, int y )
 {
   switch ( a_keys ) {
     case GLUT_KEY_UP:
-      break;
+		player.setVely( 5.0f);
+		break;
     case GLUT_KEY_DOWN:
-      break;
+		player.setVely( -5.0f);
+		break;
+	case GLUT_KEY_LEFT:
+		player.setVelx(-5.0f);
+		break;
+	case GLUT_KEY_RIGHT:
+		player.setVelx(5.0f);
+		break;
     default:
       break;
   }
