@@ -15,12 +15,12 @@ public:
 		radiusSquared = radius * radius;
 	}
 
-	float Equation(float x, float y) 
+	double Equation(float x, float y) 
 	{ 
-		int denom = ((x -px)*(x-px) + (y-py)*(y-py));
+		int denom = sqrt(((x -px)*(x-px) + (y-py)*(y-py)));
 		if( denom == 0)
 			return 10000.0;
-		return (radiusSquared/denom);
+		return (radius/denom);
 	}
 
 	void move(double x, double y)
