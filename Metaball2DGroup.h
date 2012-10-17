@@ -1,4 +1,3 @@
-
 #ifndef METABALL2DGROUP_H_
 #define METABALL2DGROUP_H_
 

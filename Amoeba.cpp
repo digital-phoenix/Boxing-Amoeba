@@ -15,4 +15,12 @@ Amoeba::Amoeba()
 	seg2Active = false;
 
 	balls.addMetaball(new Metaball2D(px,py,50.0));//body of amoeba
+<<<<<<< HEAD
 }
+=======
+	Metaball2DGroup *group = new Metaball2DGroup();
+	//group->addMetaball(new Metaball2D(250.0, 250.0, 10.0)); 
+	//balls.addSubgroup(group);
+}
+
+>>>>>>> e413549ebd22fd6c3e803b523753def61e5dbfff

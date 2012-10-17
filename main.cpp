@@ -85,7 +85,6 @@ void arrow_keys ( int a_keys, int x, int y )
 	case GLUT_KEY_RIGHT:
 		player.setVelx(5.0f);
 		break;
-	
     default:
       break;
   }
