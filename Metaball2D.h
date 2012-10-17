@@ -6,17 +6,21 @@ class Metaball2D
 	
 
 public:
-	double px,py;//point x and y
+
 	Metaball2D(double px , double py , double radius)
 	{
 		this->px = px;
 		this->py = py;
 		this->radius = radius;
+		radiusSquared = radius * radius;
 	}
 
-	float Equation(float x, float y) 
+	double Equation(float x, float y) 
 	{ 
-		return (radius/sqrt( (x -px)*(x-px) + (y-py)*(y-py)));
+		int denom = sqrt(((x -px)*(x-px) + (y-py)*(y-py)));
+		if( denom == 0)
+			return 10000.0;
+		return (radius/denom);
 	}
 
 	void move(double x, double y)
@@ -33,8 +37,9 @@ public:
 	
 private:
 	
-	
+	double px,py;//point x and y
 	double radius;
+	double radiusSquared;
 };
 
 #endif
