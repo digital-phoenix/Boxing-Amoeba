@@ -1,4 +1,3 @@
-
 #include <windows.h>
 #include <gl/gl.h>     
 #include <gl/glut.h>   
@@ -55,6 +54,20 @@ void reshape ( int w, int h )
 
 void keyboard ( unsigned char key, int x, int y )
 {
+	switch ( key ) 
+	{
+
+		case('e'):
+			player.extendArm();
+			break;
+
+		case('r'):
+			player.retractArm();
+			break;
+
+		default:
+			break;
+	}
 }
 
 void arrow_keys ( int a_keys, int x, int y )
@@ -72,6 +85,7 @@ void arrow_keys ( int a_keys, int x, int y )
 	case GLUT_KEY_RIGHT:
 		player.setVelx(5.0f);
 		break;
+	
     default:
       break;
   }
@@ -92,4 +106,3 @@ int main ( int argc, char** argv )
 
 	return 0;
 }
-

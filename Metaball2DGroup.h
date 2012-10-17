@@ -1,3 +1,4 @@
+
 #ifndef METABALL2DGROUP_H_
 #define METABALL2DGROUP_H_
 
@@ -21,12 +22,24 @@ public:
 
 	Metaball2DGroup(){}
 
-	void addMetaball(Metaball2D* ball){
+	void addMetaball(Metaball2D* ball)
+	{
 		balls.push_back(*ball);
 	}
+
+	void popMetaball()
+	{
+		balls.pop_back();
+	}
 	
-	void addSubgroup( Metaball2DGroup* other){
+	void addSubgroup( Metaball2DGroup *other)
+	{
 		subgroups.push_back(*other);
+	}
+
+	void popSubgroup()
+	{
+		subgroups.pop_back();
 	}
 
 	double evaluatePoint(int x, int y){
@@ -101,9 +114,16 @@ public:
 
 	}
 
-	void shiftGroup(double x, double y){
-		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
+	void shiftGroup(double x, double y)
+	{
+		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++)
+		{
 			it->shift(x, y);
+		}
+
+		for(std:: list<Metaball2DGroup>:: iterator it = subgroups.begin(); it != subgroups.end(); it++)
+		{
+			it->shiftGroup(x,y);
 		}
 	}
 
