@@ -115,16 +115,19 @@ public:
 
 	void shiftGroup(double x, double y)
 	{
-		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++)
-		{
-			it->shift(x, y);
-		}
 
 		for(std:: list<Metaball2DGroup>:: iterator it = subgroups.begin(); it != subgroups.end(); it++)
 		{
 			it->shiftGroup(x,y);
 		}
+
+		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++)
+		{
+			it->shift(x, y);
+		}
 	}
+
+
 
 	inline bool checkSamples( int x, int y){
 		double score;

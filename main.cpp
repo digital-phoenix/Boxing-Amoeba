@@ -66,10 +66,33 @@ void keyboard ( unsigned char key, int x, int y )
 			player.retractArm();
 			break;
 
+		case('q'):
+			player.incAngle();
+			break;
+
+		case('w'):
+			player.decAngle();
+			break;
+	
+
 		default:
 			break;
 	}
 }
+
+void mouse(int btn, int state, int x, int y)
+{
+    if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)   
+    {
+		player.setLeftMousePos(x,y);
+		player.extendArm();
+    }
+    if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)   
+    {
+		player.setRightMousePos(x,y);
+    }
+}
+
 
 void arrow_keys ( int a_keys, int x, int y )
 {
@@ -103,9 +126,12 @@ int main ( int argc, char** argv )
 	glutDisplayFunc( display );
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
+	glutMouseFunc(mouse);
 	glutSpecialFunc( arrow_keys );
 	glutMainLoop();
 
 	return 0;
 }
+
+
 
