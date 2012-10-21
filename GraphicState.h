@@ -11,4 +11,12 @@ extern  int screenRight;
 extern  int screenTop;
 extern  int screenBottom;
 
+typedef struct{
+ double x,y;
+}point;
+	
+typedef struct{
+	point points[3];
+}triangle;	
+
 #endif

@@ -10,22 +10,22 @@ class Amoeba : Sprite  {
 		Metaball2DGroup balls;
 		double velX, velY;
 		double px, py;
-		double radAngle;
+		int radAngle;
 
 		Metaball2DGroup *armBall;
 		bool armActive;
 		bool segActive;
 		bool seg2Active;
+		time_t armTimer;
 
 		int spacing1;
 		int spacing2;
 		int spacing3;
 
-		time_t armTimer;
-
 		int rightMx, rightMy;
 		int leftMx, leftMy;
 		float slope;
+
 
 	public:
 
@@ -52,37 +52,36 @@ class Amoeba : Sprite  {
 			velY = y;
 		}
 
+		void setVelocity( double x, double y){
+			setVelx(x);
+			setVely(y);
+		}
+
+		
 		void setRightMousePos(GLsizei x, GLsizei y)
 		{
 			rightMx = x;
 			rightMy = y;
 		}
 
-	    void setLeftMousePos(GLsizei x, GLsizei y)
+		void setLeftMousePos(GLsizei x, GLsizei y)
 		{
 			if(!armActive)
 			{
-				leftMx = x;
-				leftMy = y;
+			leftMx = x;
+			leftMy = y;
 			}
-		
 		}
 
-		void setVelocity( double x, double y){
-			setVelx(x);
-			setVely(y);
-		}
+			void incAngle()
+			{
+				radAngle+=20;
+			}
 
-		void incAngle()
-		{
-			radAngle+=20;
-		}
-
-		void decAngle()
-		{
-			radAngle-=20;
-		}
-
+			void decAngle()
+			{
+				radAngle-=20;
+			}
 
 		void extendArm()
 		{
@@ -91,14 +90,13 @@ class Amoeba : Sprite  {
 				printf("%d - %f\n", leftMy, py);
 				printf("%d - %f\n", leftMx, px);
 
-			    slope = (-1) * ( ( leftMy - py) / (leftMx - px) );
+				slope = (-1) * ( ( leftMy - py) / (leftMx - px) );
 
 				if(leftMx < px)
 				{
 					spacing1 = -50;
 					spacing2 = -80;
 					spacing3 = -100;
-					
 				}
 				else
 				{
@@ -106,7 +104,7 @@ class Amoeba : Sprite  {
 					spacing2 = 80;
 					spacing3 = 100;
 				}
-			
+
 				printf("%f", slope);
 			}
 			//printf("%f",slope);
@@ -116,16 +114,16 @@ class Amoeba : Sprite  {
 			{
 				armActive = true;
 				armTimer = time(NULL);
-			    armBall = new Metaball2DGroup();
+				armBall = new Metaball2DGroup();
 				armBall->addMetaball(new Metaball2D(px + spacing1, py + slope * (spacing1), 5.0 ));
 				balls.addSubgroup(armBall);
 				armBall->popMetaball();
-				
+
 			}
 			else if(armActive)
 			{
-				
-				if(time(NULL) - armTimer > 1 && !segActive)
+
+				if(time(NULL) - armTimer > 0.25 && !segActive)
 				{
 					segActive = true;
 					balls.popSubgroup();
@@ -134,9 +132,9 @@ class Amoeba : Sprite  {
 					balls.addSubgroup(armBall);
 					armBall->popMetaball();
 					armBall->popMetaball();
-					
+
 				}
-				else if(time(NULL) - armTimer > 2 && !seg2Active)
+				else if(time(NULL) - armTimer > 0.75 && !seg2Active)
 				{
 					seg2Active = true;
 					balls.popSubgroup();
@@ -148,10 +146,10 @@ class Amoeba : Sprite  {
 					armBall->popMetaball();
 					armBall->popMetaball();
 					armBall->popMetaball();
-					
+
 				}
 			}
-			
+
 		}
 
 		void retractArm()
