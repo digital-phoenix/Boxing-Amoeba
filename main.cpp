@@ -2,6 +2,7 @@
 #include <gl/gl.h>     
 #include <gl/glut.h>   
 #include <list>
+#include<time.h>
 #include "Sprite.h"
 #include "Amoeba.h"
 #include "GraphicState.h"
@@ -10,14 +11,18 @@ std::list<Sprite*> sprites;
 Amoeba player;
 
 int screenLeft = 0;
-int screenRight = 0;
-int screenTop = 0;
+int screenRight = 500;
+int screenTop = 500;
 int screenBottom = 0;
+clock_t currentTime;
+clock_t lastTime = clock();
+int FPS = 0;
 
 void init ( GLvoid )   
 {
 	player = Amoeba();
 	sprites.push_back( (Sprite*) (&player) );
+	sprites.push_back((Sprite*) (new Amoeba()));
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable ( GL_COLOR_MATERIAL );
@@ -25,6 +30,15 @@ void init ( GLvoid )
 
 void display ( void )   
 {
+
+	FPS++;
+	currentTime = clock();
+	if( currentTime - lastTime >= CLOCKS_PER_SEC){
+		printf("FPS = %d\n", FPS);
+		lastTime = currentTime;
+		FPS = 0;
+	}
+
 	glClear(GL_COLOR_BUFFER_BIT);	
 	glLoadIdentity();			
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++){
@@ -46,8 +60,6 @@ void reshape ( int w, int h )
 	glMatrixMode( GL_PROJECTION );  
 	glLoadIdentity();   
 	
-	screenRight = w;
-	screenTop = h;
 	gluOrtho2D(screenLeft, screenRight, screenBottom, screenTop);
 	glMatrixMode( GL_MODELVIEW );  
 }

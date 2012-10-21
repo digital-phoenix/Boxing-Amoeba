@@ -15,11 +15,12 @@ public:
 		radiusSquared = radius * radius;
 	}
 
-	double Equation(float x, float y) 
+	inline double Equation(float x, float y) 
 	{ 
-		int denom = sqrt(((x -px)*(x-px) + (y-py)*(y-py)));
+		double denom =sqrt((x -px)*(x-px) + (y-py)*(y-py));
 		if( denom == 0)
-			return 10000.0;
+			return 1000.0;
+		double val = denom * denom - denom + 0.25;
 		return (radius/denom);
 	}
 
@@ -34,7 +35,18 @@ public:
 		py += y;
 	}
 	
+	inline double getRadius(){
+		return radius;
+	}
 	
+	inline double getPx(){
+		return px;
+	}
+
+	inline double getPy(){
+		return py;
+	}
+
 private:
 	
 	double px,py;//point x and y
