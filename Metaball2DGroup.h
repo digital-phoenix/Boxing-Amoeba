@@ -484,5 +484,4 @@ public:
 		return false;
 	}
 };
-
 #endif

@@ -64,11 +64,25 @@ void reshape ( int w, int h )
 	glMatrixMode( GL_MODELVIEW );  
 }
 
+
+void mouse(int btn, int state, int x, int y)
+{
+    if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
+    {
+		player.setLeftMousePos(x,y);
+		player.extendArm();
+    }
+
+    if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
+    {
+		player.setRightMousePos(x,y);
+    }
+}
+
 void keyboard ( unsigned char key, int x, int y )
 {
 	switch ( key ) 
 	{
-
 		case('e'):
 			player.extendArm();
 			break;
@@ -76,6 +90,14 @@ void keyboard ( unsigned char key, int x, int y )
 		case('r'):
 			player.retractArm();
 			break;
+
+		case('q'):
+			player.incAngle();
+			break;
+
+		case('w'):
+			player.decAngle();
+		break;
 
 		default:
 			break;
@@ -111,9 +133,11 @@ int main ( int argc, char** argv )
 	glutCreateWindow( "Amoeba Boxing" );
 	glutDisplayFunc( display );
 	glutReshapeFunc( reshape );
+	glutMouseFunc(mouse);
 	glutKeyboardFunc( keyboard );
 	glutSpecialFunc( arrow_keys );
 	glutMainLoop();
 
 	return 0;
 }
+>>>>>>> 624e7fa1cd4417bf983686ab8996bc3edcf922f6
