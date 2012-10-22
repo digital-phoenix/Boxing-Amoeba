@@ -397,13 +397,17 @@ public:
 
 					score += evaluateSubGroups(x, y);
 					values[y / GRID_SIZE][x / GRID_SIZE] = score;
-					if(score >= THRESHOLD ){
+					if(score >= THRESHOLD )
+					{
 						type |= 1;
 					}
-					if( score <= 0.5){
+					if( score <= 0.5)
+					{
 						pass = true;
 						break;
-					} else if( score >= 2.0){
+					} 
+					else if( score >= 2.0)
+					{
 						type = 15;
 						pass = true;
 					}
@@ -419,10 +423,12 @@ public:
 			type = type2;
 
 			glBegin(GL_TRIANGLES);
-			for( std::list<triangle>::iterator it = blocks[type].begin(); it != blocks[type].end(); it++){
+			for( std::list<triangle>::iterator it = blocks[type].begin(); it != blocks[type].end(); it++)
+			{
 				for( int i = 0; i < 3; i++)
 					glVertex2i( GRID_SIZE * v.second + it->points[i].x, GRID_SIZE * v.first + it->points[i].y);  
 			}
+
 			glEnd();
 			
 			if( moves[type] & 1 &&  v.first + 1 < NUM_GRIDS){

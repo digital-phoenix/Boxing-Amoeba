@@ -70,12 +70,13 @@ void mouse(int btn, int state, int x, int y)
     if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
     {
 		player.setLeftMousePos(x,y);
-		player.extendArm();
+		player.extendAttackArm();
     }
 
     if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
     {
 		player.setRightMousePos(x,y);
+		player.extendDefendArm();
     }
 }
 
@@ -84,7 +85,7 @@ void keyboard ( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case('e'):
-			player.extendArm();
+			player.extendAttackArm();
 			break;
 
 		case('r'):
