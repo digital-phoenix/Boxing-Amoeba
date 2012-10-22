@@ -12,19 +12,35 @@ class Amoeba : Sprite  {
 		double px, py;
 		int radAngle;
 
-		Metaball2DGroup *armBall;
-		bool armActive;
-		bool segActive;
-		bool seg2Active;
-		time_t armTimer;
+		Metaball2DGroup *attackArm;
 
-		int spacing1;
-		int spacing2;
-		int spacing3;
+		bool attackActive;
+		bool attackSegActive;
+		bool attackSeg2Active;
+		time_t attackArmTimer;
 
+		int attackSpacing1;
+		int attackSpacing2;
+		int attackSpacing3;
+
+	    int leftMx, leftMy;
+		float lslope;
+
+		Metaball2DGroup *defendArm;
+
+		bool defendActive;
+		bool defendSegActive;
+		bool defendSeg2Active;
+		time_t defendArmTimer;
+
+		int defendSpacing1;
+		int defendSpacing2;
+		int defendSpacing3;
+
+	
+		
 		int rightMx, rightMy;
-		int leftMx, leftMy;
-		float slope;
+		float rslope;
 
 
 	public:
@@ -60,16 +76,19 @@ class Amoeba : Sprite  {
 		
 		void setRightMousePos(GLsizei x, GLsizei y)
 		{
-			rightMx = x;
-			rightMy = y;
+			if(!defendActive)
+			{
+				rightMx = x;
+				rightMy = y;
+			}
 		}
 
 		void setLeftMousePos(GLsizei x, GLsizei y)
 		{
-			if(!armActive)
+			if(!attackActive)
 			{
-			leftMx = x;
-			leftMy = y;
+				leftMx = x;
+				leftMy = y;
 			}
 		}
 
@@ -83,85 +102,162 @@ class Amoeba : Sprite  {
 				radAngle-=20;
 			}
 
-		void extendArm()
+		void extendAttackArm()
 		{
-			if(slope == 0)
+			if(lslope == 0)
 			{
-				printf("%d - %f\n", leftMy, py);
-				printf("%d - %f\n", leftMx, px);
+			
 
-				slope = (-1) * ( ( leftMy - py) / (leftMx - px) );
+				lslope = (-1) * ( ( leftMy - py) / (leftMx - px) );
 
 				if(leftMx < px)
 				{
-					spacing1 = -50;
-					spacing2 = -80;
-					spacing3 = -100;
+					attackSpacing1 = -50;
+					attackSpacing2 = -80;
+					attackSpacing3 = -100;
 				}
 				else
 				{
-					spacing1 = 50;
-					spacing2 = 80;
-					spacing3 = 100;
+					attackSpacing1 = 50;
+					attackSpacing2 = 80;
+					attackSpacing3 = 100;
 				}
 
-				printf("%f", slope);
+
 			}
-			//printf("%f",slope);
+	
 
 			/*Can make general case for more arm segments*/
-			if(!armActive)
+			if(!attackActive)
 			{
-				armActive = true;
-				armTimer = time(NULL);
-				armBall = new Metaball2DGroup();
-				armBall->addMetaball(new Metaball2D(px + spacing1, py + slope * (spacing1), 5.0 ));
-				balls.addSubgroup(armBall);
-				armBall->popMetaball();
+				attackActive = true;
+				attackArmTimer = time(NULL);
+				attackArm = new Metaball2DGroup();
+				attackArm->addMetaball(new Metaball2D(px + attackSpacing1, py + lslope * (attackSpacing1), 5.0 ));
+				balls.addSubgroup(attackArm);
+				attackArm->popMetaball();
 
 			}
-			else if(armActive)
+			else if(attackActive)
 			{
 
-				if(time(NULL) - armTimer > 0.25 && !segActive)
+				if(time(NULL) - attackArmTimer > 0.25 && !attackSegActive)
 				{
-					segActive = true;
+					attackSegActive = true;
 					balls.popSubgroup();
-					armBall->addMetaball(new Metaball2D(px+spacing1, py+ slope*(spacing1),5.0 ));
-					armBall->addMetaball(new Metaball2D(px+spacing2, py+ slope*(spacing2),5.0));
-					balls.addSubgroup(armBall);
-					armBall->popMetaball();
-					armBall->popMetaball();
+					attackArm->addMetaball(new Metaball2D(px+ attackSpacing1, py+ lslope*(attackSpacing1),5.0 ));
+					attackArm->addMetaball(new Metaball2D(px+ attackSpacing2, py+ lslope*(attackSpacing2),5.0));
+					balls.addSubgroup(attackArm);
+					attackArm->popMetaball();
+					attackArm->popMetaball();
 
 				}
-				else if(time(NULL) - armTimer > 0.75 && !seg2Active)
+				else if(time(NULL) - attackArmTimer > 0.75 && !attackSeg2Active)
 				{
-					seg2Active = true;
+					attackSeg2Active = true;
 					balls.popSubgroup();
-					armBall->addMetaball(new Metaball2D(px + spacing1, py + slope *(spacing1), 5.0 ));
-					armBall->addMetaball(new Metaball2D(px + spacing2, py + slope*(spacing2),5.0));
-					armBall->addMetaball(new Metaball2D(px + spacing3, py + slope*(spacing3),5.0));
-					balls.addSubgroup(armBall);
+					attackArm->addMetaball(new Metaball2D(px + attackSpacing1, py + lslope *(attackSpacing1), 5.0 ));
+					attackArm->addMetaball(new Metaball2D(px + attackSpacing2, py + lslope*(attackSpacing2),5.0));
+					attackArm->addMetaball(new Metaball2D(px + attackSpacing3, py + lslope*(attackSpacing3),5.0));
+					balls.addSubgroup(attackArm);
 
-					armBall->popMetaball();
-					armBall->popMetaball();
-					armBall->popMetaball();
+					attackArm->popMetaball();
+					attackArm->popMetaball();
+					attackArm->popMetaball();
 
 				}
 			}
 
 		}
 
+
+
+		void extendDefendArm()
+		{
+			if(rslope == 0)
+			{
+
+				rslope = (-1) * ( ( rightMy - py) / (rightMx - px) );
+
+				if(rightMx < px)
+				{
+					defendSpacing1 = -50;
+					defendSpacing2 = -80;
+					defendSpacing3 = -100;
+				}
+				else
+				{
+					defendSpacing1 = 50;
+					defendSpacing2 = 80;
+					defendSpacing3 = 100;
+				}
+
+			}
+
+			if(!defendActive)
+			{
+				defendActive = true;
+				defendArmTimer = time(NULL);
+				defendArm = new Metaball2DGroup();
+				defendArm->addMetaball(new Metaball2D(px + defendSpacing1, py + rslope * (defendSpacing1), 5.0 ));
+				balls.addSubgroup(defendArm);
+				defendArm->popMetaball();
+
+			}
+			else if(defendActive)
+			{
+
+				if(time(NULL) - defendArmTimer > 0.25 && !defendSegActive)
+				{
+					defendSegActive = true;
+					balls.popSubgroup();
+					defendArm->addMetaball(new Metaball2D(px+ defendSpacing1, py+ rslope*(defendSpacing1),5.0 ));
+					defendArm->addMetaball(new Metaball2D(px+ defendSpacing2, py+ rslope*(defendSpacing2),5.0));
+					balls.addSubgroup(defendArm);
+					defendArm->popMetaball();
+					defendArm->popMetaball();
+
+				}
+				else if(time(NULL) - defendArmTimer > 0.75 && !defendSeg2Active)
+				{
+					defendSeg2Active = true;
+					balls.popSubgroup();
+					defendArm->addMetaball(new Metaball2D(px + defendSpacing1, py + rslope *(defendSpacing1), 5.0 ));
+					defendArm->addMetaball(new Metaball2D(px + defendSpacing2, py + rslope*(defendSpacing2),5.0));
+					defendArm->addMetaball(new Metaball2D(px + defendSpacing3, py + rslope*(defendSpacing3),5.0));
+					balls.addSubgroup(defendArm);
+
+					defendArm->popMetaball();
+					defendArm->popMetaball();
+					defendArm->popMetaball();
+
+				}
+			}
+
+
+		}
+		
+
 		void retractArm()
 		{
-			if(armActive)
+			if(attackActive)
 			{
 				balls.popSubgroup();
-				slope = 0;
-				armBall = NULL;
-				armActive = false;
-				segActive = false;
-				seg2Active = false;
+				lslope = 0;
+				attackArm = NULL;
+				attackActive = false;
+				attackSegActive = false;
+				attackSeg2Active = false;
+			}
+
+			if(defendActive)
+			{
+				balls.popSubgroup();
+				rslope = 0;
+				defendArm = NULL;
+				defendActive = false;
+				defendSegActive = false;
+				defendSeg2Active = false;
 			}
 
 		}
