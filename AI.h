@@ -1,14 +1,10 @@
-#ifndef AMOEBA_H_
-#define AMOEBA_H_
-
 #include"Sprite.h"
 #include"Metaball2DGroup.h"
 #include <time.h>
 
-class Amoeba : Sprite  {
-	private:
-
-		/*Characteristics*/
+class AI : Sprite
+{
+	/*Characteristics*/
 		Metaball2DGroup balls;
 		double velX, velY;
 		double px, py;
@@ -26,7 +22,6 @@ class Amoeba : Sprite  {
 		int attackSpacing2;
 		int attackSpacing3;
 
-	    int leftMx, leftMy;
 		float lslope;
 
 		Metaball2DGroup *defendArm;
@@ -40,7 +35,6 @@ class Amoeba : Sprite  {
 		int defendSpacing2;
 		int defendSpacing3;
 
-		int rightMx, rightMy;
 		float rslope;
 
 
@@ -54,11 +48,11 @@ class Amoeba : Sprite  {
 		bool canMoveDown;
 		bool canMoveLeft;
 		bool canMoveRight;
-		
 
-	public:
 
-		Amoeba(double,double, double, bool);
+		public:
+
+		AI(double,double, double, bool);
 		
 		void draw(){
 			balls.draw();
@@ -81,11 +75,6 @@ class Amoeba : Sprite  {
 		
 		};
 
-		bool* getAvailableMoves()
-		{
-			bool moves[] = {canMoveUp, canMoveDown, canMoveLeft, canMoveRight};
-			return moves;
-		}
 
 		void update()
 		{
@@ -217,112 +206,19 @@ class Amoeba : Sprite  {
 		}
 
 		
-		void setRightMousePos(GLsizei x, GLsizei y)
-		{
-			if(!defendActive)
-			{
-				rightMx = x;
-				rightMy = y;
-			}
-		}
 
-		void setLeftMousePos(GLsizei x, GLsizei y)
-		{
-			if(!attackActive)
-			{
-				leftMx = x;
-				leftMy = y;
-			}
-		}
-
-			void incAngle()
-			{
-				radAngle+=20;
-			}
-
-			void decAngle()
-			{
-				radAngle-=20;
-			}
 
 		void extendAttackArm()
 		{
-			if(lslope == 0)
-			{
 			
-				lslope = (-1) * ( ( leftMy - py) / (leftMx - px) );
-
-
-				if(leftMx < px)
-				{
-					attackSpacing1 = -50;
-					attackSpacing2 = -80;
-					attackSpacing3 = -100;	
-				}
-				else
-				{
-					attackSpacing1 = 50;
-					attackSpacing2 = 80;
-					attackSpacing3 = 100;
-
-				}
-
-				
-
-				if(!attackActive)
-				{
-						attackActive = true;
-						attackArmTimer = time(NULL);
-
-						attackArm = new Metaball2DGroup();
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 4.0 ,true));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),4.0, true));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),4.0, true));
-						balls.addSubgroup(attackArm);
-
-				}	
-			}
-
 		}
 
 
 
 		void extendDefendArm()
 		{
-			if(rslope == 0)
-			{
-
-				rslope = (-1) * ( ( rightMy - py) / (rightMx - px) );
-
-				if(rightMx < px)
-				{
-					defendSpacing1 = -50;
-					defendSpacing2 = -80;
-					defendSpacing3 = -100;
-
-					
-				}
-				else
-				{
-					defendSpacing1 = 50;
-					defendSpacing2 = 80;
-					defendSpacing3 = 100;
-
-
-				}
-
-				if(!defendActive)
-				{
-						defendActive = true;
-						defendArmTimer = time(NULL);
-						defendArm = new Metaball2DGroup();
-				
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 5.0 ,false));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),5.0, false));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing3, py + sin(rslope)*(defendSpacing3),5.0 , false));
-						balls.addSubgroup(defendArm);
-				}
-			}
+			
+			
 
 
 		}
@@ -330,24 +226,7 @@ class Amoeba : Sprite  {
 
 		void retractArm()
 		{
-			if(attackActive && time(NULL) - attackArmTimer > 0.25)
-			{
-				balls.popSubgroup();
-				lslope = 0;
-				attackArm = NULL;
-				attackActive = false;
-			}
 
-			if(defendActive && time(NULL) - defendArmTimer > 7)
-			{
-				balls.popSubgroup();
-				rslope = 0;
-				defendArm = NULL;
-				defendActive = false;
-
-			}
 
 		}
 };
-
-#endif

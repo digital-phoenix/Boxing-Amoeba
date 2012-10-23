@@ -9,7 +9,7 @@
 #include <stack>
 
 #define THRESHOLD 1.0f
-#define GRID_SIZE 4
+#define GRID_SIZE 5
 #define DEBUG 0
 #define NUM_GRIDS 500 / GRID_SIZE
 #define SQRT2 1.41421356237

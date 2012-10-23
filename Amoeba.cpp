@@ -1,20 +1,21 @@
 #include"Amoeba.h"
 
-Amoeba::Amoeba()
+
+
+Amoeba::Amoeba(double px, double py, double radius, bool normal)
 {
 	velX = 0;
 	velY = 0;
 
-	px = 250;
-	py = 250;
+	this->px = px;
+	this->py = py;
+	this->radius = radius;
+	this->normal = normal;
 
 	attackArm = NULL;
 
 	attackActive = false;
-	attackSegActive = false;
-	attackSeg2Active = false;
 	attackArmTimer = 0;
-
 	attackSpacing1 = 0;
 	attackSpacing2 = 0;
 	attackSpacing3 = 0;
@@ -40,6 +41,15 @@ Amoeba::Amoeba()
 
 	radAngle = 0;
 
+	isCollision = false;
+	colPx = 0;
+    colPy = 0;
+	colAngle = 0;
 
-	balls.addMetaball(new Metaball2D(px,py,50.0));//body of amoeba
+	canMoveUp = true;
+	canMoveDown = true;
+	canMoveLeft = true;
+	canMoveRight = true;
+
+	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of amoeba
 }
