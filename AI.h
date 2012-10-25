@@ -1,11 +1,14 @@
 #include"Sprite.h"
+#include"Amoeba.h"
 #include"Metaball2DGroup.h"
 #include <time.h>
+#include <string>
 
-class AI : Sprite
+class AI : Amoeba
 {
-	/*Characteristics*/
+	/*
 		Metaball2DGroup balls;
+		std::string identifier;
 		double velX, velY;
 		double px, py;
 		int radAngle;
@@ -13,7 +16,7 @@ class AI : Sprite
 		bool normal;
 
 
-		/*Arm management variables*/
+		
 		Metaball2DGroup *attackArm;
 		bool attackActive;
 		time_t attackArmTimer;
@@ -37,69 +40,65 @@ class AI : Sprite
 
 		float rslope;
 
+		double attackFistPx;
+		double attackFistPy;
+		double attackFistRadius;
 
-		/*Collision gathering variables*/
+		double defendFistPx;
+		double defendFistPy;
+		double defendFistRadius;
+
 		bool isCollision;
+		bool isBody;
+		bool isDefend; 
+		bool isAttack;
+		bool isWall;
+
 		double colPx;
 		double colPy;
 		double colAngle;
-
-		bool canMoveUp;
-		bool canMoveDown;
-		bool canMoveLeft;
-		bool canMoveRight;
-
+*/
 
 		public:
 
 		AI(double,double, double, bool);
+	
 		
-		void draw(){
-			balls.draw();
-		};
+		void update(){};
 
-		bool checkCollision(Sprite* obj)
-		{ 
-			//(y2 - y1)² + (x2 - x1)²
-			
-			double distance = sqrt(  ((py - obj->getPy()) * (py - obj->getPy()) ) +  ((px - obj->getPx() ) * (px - obj->getPx() ))) ; 
-
-			if(distance < radius + obj->getRadius() )
+		void update(Sprite* player)
+		{
+			if(!isCollision)
 			{
-				isCollision = true;
-				return true;
+				if(player->getPx() > px)
+				{
+					velX = 0.2;
+				}
+				else
+				{
+					velX = -0.2;
+				}
+
+				if(player->getPy() > py)
+				{
+					velY = 0.2;
+				}
+				else
+				{
+					velY = -0.2;
+				}
 			}
 
-			isCollision = false;
-			return false;
-		
-		};
 
-
-		void update()
-		{
 			px += velX;
 			py += velY;
 
-			if(!isCollision)
-			{
-				 canMoveUp = true;
-				 canMoveDown = true;
-				 canMoveLeft = true;
-				 canMoveRight = true;
-			}
-			/*glTranslate(player1X, player2Y, 0);
-			glRotatef(angle1 * (180/PI), 0, 0, 1);
-			glutSolidSphere(10, 20,20);
-			if (keyStates['e']){
-			  attack();
-			 }
-			glRotatef(-(angle1 * (180/PI)), 0, 0, 1);
-			 glTranslatef(-p1X, -p1Y,0);
-			 */
 			
-			retractArm();
+			
+			//retractArm();
+			
 			balls.shiftGroup(velX, velY);	
+			
 		};
 
 		void collision(Sprite *obj)
@@ -108,122 +107,136 @@ class AI : Sprite
 			velX = 0;
 			velY = 0;
 
-			isCollision = true;
 
-			colPx = obj->getPx();
-			colPy = obj->getPy();
-
-			colAngle = (-1) * ( ( py - colPy) / (px - colPx));
-
-			//printf("[%f: %f]" , colPx, colPy);
-			//printf("[%f: %f]" , px, py);
-
-			if(px < colPx && py < colPy)
+			if(isAttack)
 			{
-				canMoveDown = false;
-				canMoveRight = false;
-				//canMoveUp = true;
-				//canMoveLeft = true;
-			}
-			else if( px < colPx && py > colPy)
-			{
-				canMoveRight = false;
-				canMoveUp = false;
-				//canMoveDown = true;
-				//canMoveLeft = true;
-			}
-			else if(px > colPx && py < colPy)
-			{
-				canMoveDown = false;
-				canMoveLeft = false;
-				//canMoveUp = true;
-				//canMoveRight = true;
-			}
-			else if(px > colPx && py > colPy)
-			{
-				canMoveLeft = false;
-				canMoveUp = false;
-				//canMoveDown = true;
-				//canMoveRight = true;
-			}
-			else if(px == colPx && py < colPy)
-			{
-				canMoveDown = false;
-				//canMoveRight = true;
-				//canMoveLeft = true;
-				//canMoveUp = true;
-			}
-			else if(px == colPx && py > colPy)
-			{
-				canMoveUp = false;
-				//canMoveRight = true;
-				//canMoveLeft = true;
-				//canMoveDown = true;
-			}
-			else if( px < colPx && py == colPy)
-			{
-				canMoveRight = false;
-				//canMoveLeft = true;
-				//canMoveDown = true;
-				//canMoveUp = true;
-			}
-			else if( px > colPx && py == colPy)
-			{
-				canMoveLeft = false;
-				//canMoveRight = true;
-				//canMoveDown = true;
-				//canMoveUp = true;
-			}
+					//colPx = colPx + obj->getPx();
+					//colPy = colPy + obj->getPy();
 
-		}
+					if(px < colPx)
+					{
+						velX = -50;
+					}
+					else
+					{
+						velX = 50;
+					}
 
-		void setVelx( double x){
-			velX = x;
-		}
+					if(py < colPy)
+					{
+						velY = -50;
+					}
+					else
+					{
+						velY = 50;
+					}
+					
+			}
+			else if(isBody)
+			{
 
-		void setVely( double y){
-			velY = y;
-		}
+				colPx = obj->getPx();
+				colPy = obj->getPy();
 
-		void setVelocity( double x, double y){
-			setVelx(x);
-			setVely(y);
-		}
+				colAngle = (-1) * ( ( py - colPy) / (px - colPx));
 
-		double getRadius()
-		{
-			return radius;
-		}
+				//printf("[%f: %f]" , colPx, colPy);
+				//printf("[%f: %f]" , px, py);
 
-		double getPx()
-		{
-			return px;
-		}
+				if(px < colPx && py < colPy)
+				{
+					velX = -2;
+					velY = -2;
+					//canMoveDown = false;
+					//canMoveRight = false;
+					//canMoveUp = true;
+					//canMoveLeft = true;
+				}
+				else if( px < colPx && py > colPy)
+				{
+					velX = -2;
+					velY = 2;
+					//canMoveRight = false;
+					//canMoveUp = false;
+					//canMoveDown = true;
+					//canMoveLeft = true;
+				}
+				else if(px > colPx && py < colPy)
+				{
+					velX = 2;
+					velY = -2;
+					//canMoveDown = false;
+					//canMoveLeft = false;
+					//canMoveUp = true;
+					//canMoveRight = true;
+				}
+				else if(px > colPx && py > colPy)
+				{
+					velX = 2;
+					velY = 2;
+					//canMoveLeft = false;
+					//canMoveUp = false;
+					//canMoveDown = true;
+					//canMoveRight = true;
+				}
+				else if(px == colPx && py < colPy)
+				{
+					velX = 2;
+					velY = -2;
+					//canMoveDown = false;
+					//canMoveRight = true;
+					//canMoveLeft = true;
+					//canMoveUp = true;
+				}
+				else if(px == colPx && py > colPy)
+				{
+					velX = 2;
+					velY = 2;
+					//canMoveUp = false;
+					//canMoveRight = true;
+					//canMoveLeft = true;
+					//canMoveDown = true;
+				}
+				else if( px < colPx && py == colPy)
+				{
+					velX = -2;
+					velY = -2; 
+					//canMoveRight = false;
+					//canMoveLeft = true;
+					//canMoveDown = true;
+					//canMoveUp = true;
+				}
+				else if( px > colPx && py == colPy)
+				{
+					velX = 2;
+					velY = 2;
+					//canMoveLeft = false;
+					//canMoveRight = true;
+					//canMoveDown = true;
+					//canMoveUp = true;
+				}
 
-		double getPy()
-		{
-			return py;
-		}
+				
+				}
+
+			}
 
 		
 
+		
 
+		
 		void extendAttackArm()
 		{
 			
 		}
 
-
-
 		void extendDefendArm()
 		{
 			
-			
-
-
+		
 		}
 		
-
 		void retractArm()
 		{
 

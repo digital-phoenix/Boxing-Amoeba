@@ -1,8 +1,6 @@
-#include"Amoeba.h"
+# include "AI.h"
 
-Amoeba::Amoeba(){}
-
-Amoeba::Amoeba(double px, double py, double radius, bool normal)
+AI::AI(double px, double py, double radius, bool normal)
 {
 	velX = 0;
 	velY = 0;
@@ -12,7 +10,7 @@ Amoeba::Amoeba(double px, double py, double radius, bool normal)
 	this->radius = radius;
 	this->normal = normal;
 
-	identifier = "Amoeba";
+	identifier = "AI";
 
 	attackArm = NULL;
 
@@ -22,8 +20,6 @@ Amoeba::Amoeba(double px, double py, double radius, bool normal)
 	attackSpacing2 = 0;
 	attackSpacing3 = 0;
 
-	leftMx = 0; 
-	leftMy = 0;
 	lslope = 0;
 
 	defendArm = NULL;
@@ -37,8 +33,6 @@ Amoeba::Amoeba(double px, double py, double radius, bool normal)
 	defendSpacing2 = 0;
 	defendSpacing3 = 0;
 
-	rightMx = 0;
-	rightMy = 0;
 	rslope = 0;
 
 	radAngle = 0;
@@ -48,23 +42,11 @@ Amoeba::Amoeba(double px, double py, double radius, bool normal)
     colPy = 0;
 	colAngle = 0;
 
-	canMoveUp = true;
-	canMoveDown = true;
-	canMoveLeft = true;
-	canMoveRight = true;
 
 	isBody = false;
 	isDefend = false;
 	isAttack = false;
 	isWall = false;
 
-	attackFistPx = 0;
-	attackFistPy = 0;
-	attackFistRadius = 0;
-
-	defendFistPx = 0;
-	defendFistPy = 0;
-	defendFistRadius = 0;
-
-	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of amoeba
+	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of AI
 }

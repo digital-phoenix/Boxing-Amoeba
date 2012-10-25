@@ -5,10 +5,12 @@
 #include<time.h>
 #include "Sprite.h"
 #include "Amoeba.h"
+#include "AI.h"
 #include "GraphicState.h"
 
 std::list<Sprite*> sprites;
 Amoeba *player;
+AI *ai;
 
 int screenLeft = 0;
 int screenRight = 500;
@@ -21,8 +23,9 @@ int FPS = 0;
 void init ( GLvoid )   
 {
 	player = new Amoeba(50,50, 50, true);
+	ai = new AI(450,450 , 50, true);
 	sprites.push_back( (Sprite*) (player) );
-	sprites.push_back((Sprite*) (new Amoeba(450,450 , 50, true)));
+	sprites.push_back( (Sprite*) (  ai  ) );
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable ( GL_COLOR_MATERIAL );
@@ -47,7 +50,14 @@ void display ( void )
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
 	{
 			Sprite* s = *it;
-			s->update();
+			if( (s->getIdentifier() ) == ("AI") )
+			{
+				s->update((Sprite*)player);
+			}
+			else
+			{
+				s->update();
+			}
 
 		for( std::list<Sprite*>::iterator it2 = sprites.begin(); it2 != sprites.end(); it2++)
 		{
@@ -98,6 +108,10 @@ void keyboard ( unsigned char key, int x, int y )
 {
 	switch ( key ) 
 	{
+		case(27):
+			exit(0);
+			break;
+		
 		case('e'):
 			player->extendAttackArm();
 			break;
@@ -150,6 +164,8 @@ int main ( int argc, char** argv )
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
 	glutInitWindowSize( 500, 500 ); 
 	glutCreateWindow( "Amoeba Boxing" );
+	//glutGameModeString("800x600:16@60");
+	//glutEnterGameMode();
 	glutDisplayFunc( display );
 	glutReshapeFunc( reshape );
 	glutMouseFunc(mouse);
