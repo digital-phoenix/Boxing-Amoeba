@@ -48,5 +48,5 @@ AI::AI(double px, double py, double radius, bool normal)
 	isAttack = false;
 	isWall = false;
 
-	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of AI
+	balls.addMetaball(new Metaball2D(px,py,radius));//body of AI
 }

@@ -66,5 +66,5 @@ Amoeba::Amoeba(double px, double py, double radius, bool normal)
 	defendFistPy = 0;
 	defendFistRadius = 0;
 
-	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of amoeba
+	balls.addMetaball(new Metaball2D(px,py,radius));//body of amoeba
 }

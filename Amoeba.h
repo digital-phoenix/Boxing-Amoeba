@@ -363,9 +363,9 @@ class Amoeba : public Sprite  {
 						attackArmTimer = time(NULL);
 
 						attackArm = new Metaball2DGroup();
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 3.0 ,true));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),3.0, true));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),3.0, true));
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 3.0));
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),3.0));
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),3.0));
 						balls.addSubgroup(attackArm);
 
 						attackFistPx = px + cos(lslope)*attackSpacing3;
@@ -412,9 +412,9 @@ class Amoeba : public Sprite  {
 						defendArmTimer = time(NULL);
 						defendArm = new Metaball2DGroup();
 				
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 3.0 ,false));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),3.0, false));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing3, py + sin(rslope)*(defendSpacing3),3.0 , false));
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 3.0));
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),3.0));
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing3, py + sin(rslope)*(defendSpacing3),3.0));
 						balls.addSubgroup(defendArm);
 
 						defendFistPx = px + cos(rslope)*defendSpacing3;
