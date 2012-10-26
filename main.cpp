@@ -5,10 +5,12 @@
 #include<time.h>
 #include "Sprite.h"
 #include "Amoeba.h"
+#include "AI.h"
 #include "GraphicState.h"
 
 std::list<Sprite*> sprites;
-Amoeba player;
+Amoeba *player;
+AI *ai;
 
 int screenLeft = 0;
 int screenRight = 500;
@@ -20,9 +22,10 @@ int FPS = 0;
 
 void init ( GLvoid )   
 {
-	player = Amoeba();
-	sprites.push_back( (Sprite*) (&player) );
-	sprites.push_back((Sprite*) (new Amoeba()));
+	player = new Amoeba(50,50, 50, true);
+	ai = new AI(450,450 , 50, true);
+	sprites.push_back( (Sprite*) (player) );
+	sprites.push_back( (Sprite*) (  ai  ) );
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable ( GL_COLOR_MATERIAL );
@@ -34,19 +37,40 @@ void display ( void )
 	FPS++;
 	currentTime = clock();
 	if( currentTime - lastTime >= CLOCKS_PER_SEC){
-		printf("FPS = %d\n", FPS);
+		//printf("FPS = %d\n", FPS);
 		lastTime = currentTime;
 		FPS = 0;
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT);	
-	glLoadIdentity();			
-	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++){
-		Sprite* s = *it;
-		s->update();
-		for( std::list<Sprite*>::iterator it2 = sprites.begin(); it2 != sprites.end(); it2++){
-			s->collision(*it);
+	glLoadIdentity();	
+
+		
+
+	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
+	{
+			Sprite* s = *it;
+			if( (s->getIdentifier() ) == ("AI") )
+			{
+				s->update((Sprite*)player);
+			}
+			else
+			{
+				s->update();
+			}
+
+		for( std::list<Sprite*>::iterator it2 = sprites.begin(); it2 != sprites.end(); it2++)
+		{
+			
+			if(distance(it, sprites.end()) != distance(it2, sprites.end()))
+			{
+				if(s->checkCollision(*it2))
+				{
+					s->collision(*it2);
+				}
+			}
 		}
+
 		s->draw();
 	}
 
@@ -69,14 +93,14 @@ void mouse(int btn, int state, int x, int y)
 {
     if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
     {
-		player.setLeftMousePos(x,y);
-		player.extendAttackArm();
+		player->setLeftMousePos(x,y);
+		player->extendAttackArm();
     }
 
     if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
     {
-		player.setRightMousePos(x,y);
-		player.extendDefendArm();
+		player->setRightMousePos(x,y);
+		player->extendDefendArm();
     }
 }
 
@@ -84,20 +108,24 @@ void keyboard ( unsigned char key, int x, int y )
 {
 	switch ( key ) 
 	{
+		case(27):
+			exit(0);
+			break;
+		
 		case('e'):
-			player.extendAttackArm();
+			player->extendAttackArm();
 			break;
 
 		case('r'):
-			player.retractArm();
+			player->retractArm();
 			break;
 
 		case('q'):
-			player.incAngle();
+			player->incAngle();
 			break;
 
 		case('w'):
-			player.decAngle();
+			player->decAngle();
 		break;
 
 		default:
@@ -109,16 +137,20 @@ void arrow_keys ( int a_keys, int x, int y )
 {
   switch ( a_keys ) {
     case GLUT_KEY_UP:
-		player.setVely( 5.0f);
+		if( (player->getAvailableMoves())[0] )
+			player->setVely( 5.0f);
 		break;
     case GLUT_KEY_DOWN:
-		player.setVely( -5.0f);
+		if( (player->getAvailableMoves())[1] )
+			player->setVely( -5.0f);
 		break;
 	case GLUT_KEY_LEFT:
-		player.setVelx(-5.0f);
+		if( (player->getAvailableMoves())[2] )
+			player->setVelx(-5.0f);
 		break;
 	case GLUT_KEY_RIGHT:
-		player.setVelx(5.0f);
+		if( (player->getAvailableMoves())[3] )
+			player->setVelx(5.0f);
 		break;
     default:
       break;
@@ -132,6 +164,8 @@ int main ( int argc, char** argv )
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
 	glutInitWindowSize( 500, 500 ); 
 	glutCreateWindow( "Amoeba Boxing" );
+	//glutGameModeString("800x600:16@60");
+	//glutEnterGameMode();
 	glutDisplayFunc( display );
 	glutReshapeFunc( reshape );
 	glutMouseFunc(mouse);
