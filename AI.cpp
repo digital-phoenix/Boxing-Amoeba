@@ -1,14 +1,17 @@
 # include "AI.h"
 
-AI::AI(double px, double py, double radius, bool normal)
+AI::AI(double px, double py, double radius,double scale, bool normal)
 {
 	velX = 0;
 	velY = 0;
 
 	this->px = px;
 	this->py = py;
-	this->radius = radius;
+	this->radius = radius*scale;
 	this->normal = normal;
+	this->scale = scale;
+
+	needToResize = false;
 
 	identifier = "AI";
 
@@ -35,7 +38,6 @@ AI::AI(double px, double py, double radius, bool normal)
 
 	rslope = 0;
 
-	radAngle = 0;
 
 	isCollision = false;
 	colPx = 0;
@@ -48,5 +50,5 @@ AI::AI(double px, double py, double radius, bool normal)
 	isAttack = false;
 	isWall = false;
 
-	balls.addMetaball(new Metaball2D(px,py,radius, normal));//body of AI
+	balls.addMetaball(new Metaball2D(this->px,this->py,this->radius));//body of AI
 }

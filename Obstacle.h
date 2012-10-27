@@ -9,4 +9,5 @@ class Obstacle : Sprite  {
 		bool collision(Sprite*){};
 		void update(){};
 };
+
 #endif

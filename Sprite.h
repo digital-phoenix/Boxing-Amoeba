@@ -22,6 +22,8 @@ class Sprite
 		virtual double getPy() = 0;
 		virtual double* getAttackData() = 0;
 		virtual double* getDefendData() = 0;
+		virtual bool getResize() = 0;
+		virtual double getScale() = 0;
 		
 		
 };

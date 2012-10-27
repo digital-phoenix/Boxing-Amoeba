@@ -22,8 +22,8 @@ int FPS = 0;
 
 void init ( GLvoid )   
 {
-	player = new Amoeba(50,50, 50, true);
-	ai = new AI(450,450 , 50, true);
+	player = new Amoeba(50,50, 50,1, true);
+	ai = new AI(450,450 , 50,1, true);
 	sprites.push_back( (Sprite*) (player) );
 	sprites.push_back( (Sprite*) (  ai  ) );
 	glShadeModel(GL_SMOOTH);
@@ -45,11 +45,45 @@ void display ( void )
 	glClear(GL_COLOR_BUFFER_BIT);	
 	glLoadIdentity();	
 
-		
+goto skip;
+resize:
+
+while(!sprites.empty() )
+{
+	sprites.pop_front();
+}
+
+printf("%d", sprites.size());
+
+sprites.push_back( (Sprite*) (player) );
+sprites.push_back( (Sprite*) (  ai  ) );
+
+printf("%d", sprites.size());
+
+
+skip:
 
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
 	{
 			Sprite* s = *it;
+
+			if(s->getResize())
+			{
+				if( (s->getIdentifier() ) == ("AI"))
+				{
+					
+					ai = NULL;
+					ai = new AI(s->getPx(), s->getPy(), s->getRadius(), 0.75*s->getScale(), true);
+				}
+				else
+				{
+					player = NULL;
+					player = new Amoeba(s->getPx(), s->getPy(), s->getRadius(), 0.5*s->getScale(), true);
+				}
+				goto resize;
+				
+			}
+			
 			if( (s->getIdentifier() ) == ("AI") )
 			{
 				s->update((Sprite*)player);
@@ -93,13 +127,13 @@ void mouse(int btn, int state, int x, int y)
 {
     if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
     {
-		player->setLeftMousePos(x,y);
+		player->setLeftMousePos(x,screenTop -y);
 		player->extendAttackArm();
     }
 
     if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
     {
-		player->setRightMousePos(x,y);
+		player->setRightMousePos(x, screenTop - y);
 		player->extendDefendArm();
     }
 }

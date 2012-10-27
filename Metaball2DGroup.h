@@ -9,10 +9,17 @@
 #include <stack>
 
 #define THRESHOLD 1.0f
-#define GRID_SIZE 5
+#define GRID_SIZE 4
 #define DEBUG 0
 #define NUM_GRIDS 500 / GRID_SIZE
 #define SQRT2 1.41421356237
+#define PI 3.14159265359
+
+typedef struct{
+	Metaball2D ball;
+	int r,g,b;
+	bool cleared;
+}MetaballDrawData;
 
 class Metaball2DGroup
 {
@@ -24,11 +31,19 @@ private:
 	std::list<triangle>blocks[16];
 	bool discovered [NUM_GRIDS][NUM_GRIDS];
 	double values[NUM_GRIDS + 1][NUM_GRIDS + 1];
+	int r,g,b;
 	int moves[16];
+	double minRadius;
 
 public:
 	
 	Metaball2DGroup(){
+
+		r = 255; 
+		g = 0;
+		b = 0;
+
+		minRadius = 1000;
 
 		triangle triangles[34];
 
@@ -287,30 +302,43 @@ public:
 	{
 		subgroups.push_back(*other);
 	}
+	
+	void getRGB( int *r, int *g, int *b){
+		*r = this->r;
+		*g = this->g;
+		*b = this->b;
+	}
+
+	std::vector<MetaballDrawData> getDrawData(){
+		std::vector<MetaballDrawData> ballData;
+		if( subgroups.size() > 1){
+			ballData = subgroups.front().getDrawData();
+		}
+		for( std::list<Metaball2DGroup>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
+			std::vector<MetaballDrawData> other = it->getDrawData();
+			for( int i=0; i < other.size(); i++){
+				ballData.push_back( other[i]);
+			}
+		}
+		
+		MetaballDrawData data;
+		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
+			data.ball = *it;
+			data.r = r;
+			data.g = g;
+			data.b = b;
+			data.cleared = false;
+			ballData.push_back(data);
+		}
+		return ballData;
+	}
 
 	void popSubgroup()
 	{
 		subgroups.pop_back();
 	}
 
-	std::pair<int,int> *getCentres( int *size){
-		std::pair<int,int> *centres;
-		if( ( centres = (std::pair<int,int>*) malloc( balls.size() * sizeof(std::pair<int,int>))) == NULL){
-			printf("malloc failed\n");
-			*size = 0;
-			return NULL;
-		}
-
-		int i =0;
-		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
-			centres[i] = std::pair<int,int>( (int)floor( it->getPy() / GRID_SIZE), (int)floor( it->getPx() / GRID_SIZE));
-			i++;
-		}
-		*size = i;
-		return centres;
-	}
-
-	double evaluatePoint(int x, int y){
+	double evaluatePoint(double x, double y){
 		double score =0;
 		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
 			score += it->Equation(x,y);
@@ -321,10 +349,10 @@ public:
 		return score;
 	}
 
-	double calculatePoint( int  x, int y){
+	double calculatePoint( double  x, double y, std::vector<MetaballDrawData> &data){
 		double score = 0;
-		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
-			score += it->Equation(x,y);
+		for( int i = 0; i < data.size(); i++){
+			score += data[i].ball.Equation(x, y);
 		}
 		return score;
 	}
@@ -339,124 +367,202 @@ public:
 		return score;
 	}
 
-	void draw(){
+	void calcTangent( double x, double y, double *tx, double *ty, std::vector<MetaballDrawData> &data){
 
-		for( int i = 0; i < NUM_GRIDS; i++){
-			memset(discovered[i], false, NUM_GRIDS * sizeof(bool) ); 
-			memset(values[i], -1.0, (NUM_GRIDS + 1) * sizeof(double));
+		*tx = 0;
+		*ty = 0;
+		double tmpx, tmpy;
+
+		for( int i = 0; i < data.size(); i++){
+			data[i].ball.calcTangent(x, y, &tmpx, &tmpy);
+			*tx += tmpx;
+			*ty += tmpy;
 		}
-		memset(values[NUM_GRIDS], -1.0f, (NUM_GRIDS + 1) * sizeof(double));
-
-		int gridRows = screenTop / GRID_SIZE;
-		int gridCols = screenRight / GRID_SIZE;
-		std::stack<std::pair<int,int>> spots;
 		
-		std::pair<int,int> *centres = NULL;
-		int size;
-		centres = getCentres( &size);
-		for( int i = 0; i<size; i++){
-			discovered[centres[i].first][centres[i].second];
-			spots.push( centres[i]);
-		}
-		free( centres);
-		centres = NULL;
+	}
 
-		for( std::list<Metaball2DGroup>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
-			centres = it->getCentres(&size);
-			for( int i = 0; i<size; i++){
-				if( 0 <= centres[i].first && centres[i].first < NUM_GRIDS && 0 <= centres[i].second && centres[i].second < NUM_GRIDS){
-					discovered[centres[i].first][centres[i].second] = true;
-					spots.push( centres[i]);
-				}
+	double findSmallestRadius( std::vector<MetaballDrawData> &data){
+		double min = 10000.0;
+		double tmp;
+
+		for( int i = 0; i < data.size(); i++){
+			if( min > ( tmp = data[i].ball.getRadius() ) ){
+				min = tmp;
 			}
-			free( centres);
-			centres = NULL;
 		}
 
-		std::pair<int,int> v;
-		while( !spots.empty() ){
-			v = spots.top();
-			spots.pop();
-						int type = 0;
-			bool pass = false;
+		return min;
+	}
 
-			for( int y = v.first * GRID_SIZE; y <= (v.first + 1) * GRID_SIZE  && !pass && y >=0 && y <= screenTop ; y+= GRID_SIZE){
-				for( int x = v.second * GRID_SIZE; x <= (v.second + 1) * GRID_SIZE && x >=0 && x <= screenRight; x+=GRID_SIZE){
-					type = type << 1;
-					if( values[y / GRID_SIZE][x / GRID_SIZE] >= 0.0f ){
-						type |= values[y / GRID_SIZE][x / GRID_SIZE] >= THRESHOLD;
-						continue;
-					}
+	void calcNormal( double x, double y, double *tx, double *ty, std::vector<MetaballDrawData> &data){
+		*tx = 0;
+		*ty = 0; 
 
-					double score = evaluatePoint(x,y);
-					if(score >= THRESHOLD){
-						type |= 1;
-						values[y / GRID_SIZE][x / GRID_SIZE] = score;
-						continue;
-					}
+		double tmpx, tmpy;
 
-					score += evaluateSubGroups(x, y);
-					values[y / GRID_SIZE][x / GRID_SIZE] = score;
-					if(score >= THRESHOLD )
-					{
-						type |= 1;
-					}
-					if( score <= 0.5)
-					{
-						pass = true;
-						break;
-					} 
-					else if( score >= 2.0)
-					{
-						type = 15;
-						pass = true;
-					}
-				}
-			}
+		for( int i = 0; i < data.size(); i++){
+			data[i].ball.calcNormal(x, y, &tmpx, &tmpy);
+			*tx += tmpx;
+			*ty += tmpy;
+		}
+
+	}
 	
-			int type2 = 0;
-			for( int i=0; i<4; i++){
-				type2 <<= 1;
-				type2 |= type & 1;
-				type >>= 1;
-			}
-			type = type2;
+	std::pair<double,double> stepOnceTowardsBorder(std::pair<double,double> start, double force, std::vector<MetaballDrawData> &data){
+		std::pair<double, double> norm;
+		calcNormal( start.first, start.second, &norm.first, &norm.second, data);
 
-			glBegin(GL_TRIANGLES);
-			for( std::list<triangle>::iterator it = blocks[type].begin(); it != blocks[type].end(); it++)
-			{
-				for( int i = 0; i < 3; i++)
-					glVertex2i( GRID_SIZE * v.second + it->points[i].x, GRID_SIZE * v.first + it->points[i].y);  
-			}
-
-			glEnd();
-			
-			if( moves[type] & 1 &&  v.first + 1 < NUM_GRIDS){
-				if( !discovered[ v.first + 1][v.second] ){
-					discovered[ v.first + 1][v.second] = true;
-					spots.push( std::pair<int,int>(v.first + 1, v.second));
-				}
-			}
-			if( moves[type] & 2 && v.second + 1 < NUM_GRIDS){
-				if( !discovered[ v.first][v.second + 1] ){
-					discovered[ v.first][v.second + 1] = true;
-					spots.push( std::pair<int,int>(v.first, v.second + 1));
-				}
-			}
-			if( moves[type] & 4 && v.first - 1 >= 0){
-				if( !discovered[ v.first - 1][v.second] ){
-					discovered[ v.first - 1][v.second] = true;
-					spots.push( std::pair<int,int>(v.first - 1, v.second));
-				}
-			}
-			if( moves[type] & 8 && v.second - 1 >= 0){
-				if( !discovered[v.first][v.second - 1] ){
-					discovered[v.first][v.second - 1] = true;
-					spots.push( std::pair<int,int>(v.first, v.second  - 1));
-				}
-			}
+		double mag = sqrt( norm.second * norm.second + norm.first * norm.first);
+		if( abs(mag) > 0.0001){
+			norm.first /= mag;
+			norm.second /= mag;
 		}
+
+		if( abs(norm.first) < 0.0001 && abs(norm.second) < 0.0001){
+			norm.first = 0.0001;
+			norm.second = 0.0001;
+		}
+
+		double stepSize = minRadius / THRESHOLD - ( minRadius / force) + 0.01;
+		norm.first *= stepSize;
+		norm.second *= stepSize;
 		
+		norm.first += start.first;
+		norm.second += start.second;
+
+		return norm;
+	}
+
+	std::pair<double, double> findBorder( std::pair<double,double> start, std::vector<MetaballDrawData> &data){
+		double force;
+		while( ( force = calculatePoint( start.first, start.second, data) ) > THRESHOLD){
+			start = stepOnceTowardsBorder( start, force, data);
+		}
+		return start;
+	}
+
+	std::pair<double, double> traceBorder( std::pair<double,double> start, double stepSize, std::vector<MetaballDrawData> &data){
+		std::pair<double, double> res;
+		calcTangent( start.first, start.second, &res.first, &res.second, data);
+
+		double mag = sqrt( res.first * res.first+ res.second * res.second);
+		if( mag > 0.0001){
+			res.first /= mag;
+			res.second /= mag;
+		}
+
+		res.first *= stepSize / 2.0;
+		res.second *= stepSize / 2.0;
+		calcTangent( start.first + res.first, start.second + res.second, &res.first, &res.second, data);
+
+		mag = sqrt( res.first * res.first+ res.second * res.second);
+		if( mag > 0.0001){
+			res.first /= mag;
+			res.second /= mag;
+		}
+
+		res.first *= stepSize;
+		res.second *= stepSize;
+		res.first = start.first + res.first;
+		res.second = start.second + res.second;
+		res = stepOnceTowardsBorder(res, calculatePoint(res.first, res.second, data), data );
+		return res;
+	}
+
+	void drawCircle( double x, double y, double radius){
+		glBegin( GL_TRIANGLES);
+		double newX;
+		double newY;
+		double lastX = radius + x;
+		double lastY = y;
+
+		for( double i = 1.0; i <= 360; i++){
+			newX = cos( i * PI / 180.0) * radius + x;
+			newY = sin( i * PI / 180.0) * radius + y;
+
+			glVertex2d( lastX, lastY);
+			glVertex2d( newX, newY);
+			glVertex2d( x, y);
+		}
+		glEnd();
+	}
+
+	void draw(){
+		int ballsCleared = 0;
+		std::vector<MetaballDrawData> ballData = getDrawData();
+		std::pair<double, double> start;
+		std::pair<double, double> lastPoint;
+		std::pair<double, double> nextPoint;
+		minRadius = findSmallestRadius(ballData);
+		double min = 5000.0;
+		double min2 = min;
+		double tmp;
+		int closest;
+		int closest2nd;
+		
+		for( int i=0; i<ballData.size(); i++){
+			if( ballData[i].cleared ){
+				continue;
+			}
+
+			start = findBorder( std::pair<double,double>(ballData[i].ball.getPx() + ballData[i].ball.getRadius(), ballData[i].ball.getPy()), ballData);
+			lastPoint = start;
+			for( int j =0; j < 500; j++){
+				nextPoint = traceBorder( lastPoint, 5, ballData);
+				min = 5000.0;
+				min2 = min;
+				closest = 0;
+				closest2nd = -1;
+				for( int k=0; k < ballData.size(); k++){
+					if( min > (tmp = ( nextPoint.first - ballData[k].ball.getPx()) * ( nextPoint.first - ballData[k].ball.getPx()) + ( nextPoint.second - ballData[k].ball.getPy()) * ( nextPoint.second - ballData[k].ball.getPy()) )){
+						min = tmp;
+						closest = k;
+					}
+				}
+				ballData[closest].cleared = true;
+
+				glColor3f(1.0, 0, 0);
+				glBegin( GL_TRIANGLES);
+				closest = 0;
+				if( lastPoint.first * ballData[closest].ball.getPy() - lastPoint.second * ballData[closest].ball.getPx() + lastPoint.second * nextPoint.first
+					- lastPoint.first * nextPoint.second + ballData[closest].ball.getPx() * nextPoint.second - nextPoint.first * ballData[closest].ball.getPy() > 0.00001){
+					
+					glVertex2d( lastPoint.first, lastPoint.second);
+					glVertex2d( nextPoint.first, nextPoint.second);
+					glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+
+				} else{
+					glVertex2d( nextPoint.first, nextPoint.second);
+					glVertex2d( lastPoint.first, lastPoint.second);
+					glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+				}
+				glEnd();
+
+				tmp =  (start.first - nextPoint.first) * (start.first - nextPoint.first) + (start.second - nextPoint.second) * (start.second - nextPoint.second);
+				if( tmp < 20){
+
+					glBegin( GL_TRIANGLES);
+					if( start.first * ballData[closest].ball.getPy() - start.second * ballData[closest].ball.getPx() + start.second * nextPoint.first
+						- start.first * nextPoint.second + ballData[closest].ball.getPx() * nextPoint.second - nextPoint.first * ballData[closest].ball.getPy() > 0.00001){
+
+						glVertex2d( nextPoint.first, nextPoint.second);		
+						glVertex2d( start.first, start.second);
+						glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+
+					} else{
+						glVertex2d( start.first, start.second);
+						glVertex2d( nextPoint.first, nextPoint.second);
+						glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+					}
+					glEnd();
+					
+					break;
+				}
+
+				lastPoint = nextPoint;
+			}
+			
+		}
 	}
 	
 
@@ -490,5 +596,4 @@ public:
 		return false;
 	}
 };
-
 #endif
