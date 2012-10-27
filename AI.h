@@ -61,13 +61,14 @@ class AI : Amoeba
 
 		public:
 
-		AI(double,double, double, bool);
+		AI(double,double, double, double, bool);
 	
 		
 		void update(){};
 
 		void update(Sprite* player)
 		{
+
 			if(!isCollision)
 			{
 				if(player->getPx() > px)
@@ -87,6 +88,7 @@ class AI : Amoeba
 				{
 					velY = -0.2;
 				}
+
 			}
 
 
@@ -94,6 +96,7 @@ class AI : Amoeba
 			py += velY;
 
 			
+			needToResize = false;
 			
 			//retractArm();
 			
@@ -108,10 +111,10 @@ class AI : Amoeba
 			velY = 0;
 
 
-			if(isAttack)
+			if(isDefend)
 			{
-					//colPx = colPx + obj->getPx();
-					//colPy = colPy + obj->getPy();
+					colPx = colPx + obj->getPx();
+					colPy = colPy + obj->getPy();
 
 					if(px < colPx)
 					{
@@ -132,13 +135,18 @@ class AI : Amoeba
 					}
 					
 			}
+			else if(isAttack)
+			{
+				needToResize = true;
+
+			}
 			else if(isBody)
 			{
 
 				colPx = obj->getPx();
 				colPy = obj->getPy();
 
-				colAngle = (-1) * ( ( py - colPy) / (px - colPx));
+				//colAngle = (-1) * ( ( py - colPy) / (px - colPx));
 
 				//printf("[%f: %f]" , colPx, colPy);
 				//printf("[%f: %f]" , px, py);
@@ -221,11 +229,6 @@ class AI : Amoeba
 
 			}
 
-		
-
-		
-
-		
 		void extendAttackArm()
 		{
 			

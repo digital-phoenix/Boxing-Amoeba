@@ -376,4 +376,5 @@ public:
 		return false;
 	}
 };
+
 #endif

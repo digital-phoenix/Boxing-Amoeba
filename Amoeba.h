@@ -12,10 +12,11 @@ class Amoeba : public Sprite  {
 		/*Characteristics*/
 		std::string identifier;
 		Metaball2DGroup balls;
+		bool needToResize;
 		double velX, velY;
 		double px, py;
-		int radAngle;
 		double radius;
+		double scale;
 		bool normal;
 
 
@@ -37,6 +38,7 @@ class Amoeba : public Sprite  {
 		bool defendSegActive;
 		bool defendSeg2Active;
 		time_t defendArmTimer;
+		time_t defendWaitTimer;
 
 		int defendSpacing1;
 		int defendSpacing2;
@@ -73,11 +75,21 @@ class Amoeba : public Sprite  {
 
 	public:
 		Amoeba();
-		Amoeba(double,double, double, bool);
+		Amoeba(double,double, double, double, bool);
 		
 		void draw(){
 			balls.draw();
 		};
+
+		bool getResize()
+		{
+			return needToResize;
+		}
+
+		double getScale()
+		{
+			return scale;
+		}
 
 		bool checkCollision(Sprite* obj)
 		{ 
@@ -85,7 +97,7 @@ class Amoeba : public Sprite  {
 			
 			double distance = sqrt(  ((py - obj->getPy()) * (py - obj->getPy()) ) +  ((px - obj->getPx() ) * (px - obj->getPx() ))) ; 
 
-			if(distance < radius + obj->getRadius() )
+			if(distance < radius + obj->getRadius())
 			{
 				isCollision = true;
 				isBody = true;
@@ -96,7 +108,7 @@ class Amoeba : public Sprite  {
 			double *attackData; 
 			attackData = obj->getAttackData();
 			
-			if(attackData[0] != 0 && attackData[2] == 3)
+			if(attackData[0] != 0 && attackData[2] == scale*3)
 			{
 				
 				distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) +  ((px - attackData[0]) * (px - attackData[0])))) ; 
@@ -104,11 +116,32 @@ class Amoeba : public Sprite  {
 				colPx = attackData[0];
 				colPy = attackData[1];
 
-				if(distance < radius + attackData[2])
+				if(distance < radius + attackData[2] + scale*5)
 				{
-					printf("%f:  %f", distance, radius + attackData[2]);
+				
 					isCollision = true;
 					isAttack = true;
+
+					return true;
+				}
+			}
+
+			double *DefendData; 
+			DefendData = obj->getDefendData();
+			
+			if(DefendData[0] != 0 && DefendData[2] == scale*12)
+			{
+				
+				distance = sqrt(((py - DefendData[1] ) * (py - DefendData[1]) +  ((px - DefendData[0]) * (px - DefendData[0])))) ; 
+			
+				colPx = DefendData[0];
+				colPy = DefendData[1];
+
+				if(distance < radius + DefendData[2] + scale*5)
+				{
+				
+					isCollision = true;
+					isDefend = true;
 
 					return true;
 				}
@@ -148,6 +181,7 @@ class Amoeba : public Sprite  {
 
 		void update()
 		{
+			
 			px += velX;
 			py += velY;
 
@@ -171,6 +205,7 @@ class Amoeba : public Sprite  {
 			
 			retractArm();
 			balls.shiftGroup(velX, velY);	
+
 		}
 
 		std::string getIdentifier()
@@ -184,13 +219,43 @@ class Amoeba : public Sprite  {
 			velX = 0;
 			velY = 0;
 
-			if(isBody)
+			if(isDefend)
+			{
+				
+				    colPx = colPx + obj->getPx();
+					colPy = colPy + obj->getPy();
+
+					if(px < colPx)
+					{
+						velX = -50;
+					}
+					else
+					{
+						velX = 50;
+					}
+
+					if(py < colPy)
+					{
+						velY = -50;
+					}
+					else
+					{
+						velY = 50;
+					}
+			}
+			else if(isAttack)
+			{
+
+
+
+			}
+			else if(isBody)
 			{
 
 				colPx = obj->getPx();
 				colPy = obj->getPy();
 
-				colAngle = (-1) * ( ( py - colPy) / (px - colPx));
+				//colAngle = (-1) * ( ( py - colPy) / (px - colPx));
 
 				//printf("[%f: %f]" , colPx, colPy);
 				//printf("[%f: %f]" , px, py);
@@ -252,30 +317,7 @@ class Amoeba : public Sprite  {
 					//canMoveUp = true;
 				}
 			}
-			else if(isAttack)
-			{
-				
-				colPx = colPx + obj->getPx();
-					colPy = colPy + obj->getPy();
-
-					if(px < colPx)
-					{
-						velX = -50;
-					}
-					else
-					{
-						velX = 50;
-					}
-
-					if(py < colPy)
-					{
-						velY = -50;
-					}
-					else
-					{
-						velY = 50;
-					}
-			}
+			
 		}
 
 		void setVelx( double x){
@@ -327,12 +369,12 @@ class Amoeba : public Sprite  {
 
 			void incAngle()
 			{
-				radAngle+=20;
+				//radAngle+=20;
 			}
 
 			void decAngle()
 			{
-				radAngle-=20;
+				//radAngle-=20;
 			}
 
 		void extendAttackArm()
@@ -341,20 +383,25 @@ class Amoeba : public Sprite  {
 			{
 			
 				lslope = ( ( leftMy - py) / (leftMx - px) );
+				double angle = atan(lslope);
+				
 
+				//double angle = radian * 180/3.1415962;
+				//printf("%f\n", angle);
 
 				if(leftMx < px)
 				{
 					attackSpacing1 = -70;
 					attackSpacing2 = -90;
-					attackSpacing3 = -110;	
+					attackSpacing3 = -110;
 				}
 				else
 				{
 					attackSpacing1 = 70;
 					attackSpacing2 = 90;
 					attackSpacing3 = 110;
-				}				
+				}
+						
 
 				
 				if(!attackActive)
@@ -363,63 +410,59 @@ class Amoeba : public Sprite  {
 						attackArmTimer = time(NULL);
 
 						attackArm = new Metaball2DGroup(1.0, 0.0, 0.0);
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 3.0));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),3.0));
-						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),3.0));
+						attackArm->addMetaball(new Metaball2D(px + cos(angle)*attackSpacing1, py + sin(angle)*attackSpacing1, scale*3.0));
+						attackArm->addMetaball(new Metaball2D(px + cos(angle) *attackSpacing2, py + sin(angle)*attackSpacing2,scale*3.0));
+						attackArm->addMetaball(new Metaball2D(px + cos(angle)* attackSpacing3, py + sin(angle)*attackSpacing3,scale*3.0));
 						balls.addSubgroup(attackArm);
 
-						attackFistPx = px + cos(lslope)*attackSpacing3;
-						attackFistPy = py + sin(lslope)*attackSpacing3;
-						attackFistRadius = 3;
+						attackFistPx = px + cos(angle)*attackSpacing3;
+						attackFistPy = py + sin(angle)*attackSpacing3;
+						attackFistRadius = scale*3;
 
 				}	
 			}
 		}
-		
-
-			
-		
-
-
 
 		void extendDefendArm()
 		{
 			if(rslope == 0)
 			{
 
-				rslope = (-1) * ( ( rightMy - py) / (rightMx - px) );
+				rslope = ( ( rightMy - py) / (rightMx - px) );
+				double angle = atan(rslope);
 
 				if(rightMx < px)
 				{
 					defendSpacing1 = -70;
 					defendSpacing2 = -90;
-					defendSpacing3 = -110;
-
-					
+					defendSpacing3 = -130;
 				}
 				else
 				{
 					defendSpacing1 = 70;
 					defendSpacing2 = 90;
-					defendSpacing3 = 110;
-
-
+					defendSpacing3 = 130;
 				}
 
-				if(!defendActive)
+				if(!defendActive && (defendWaitTimer - time(NULL) <= 0 ))
 				{
 						defendActive = true;
 						defendArmTimer = time(NULL);
+						defendWaitTimer = time(NULL) + 7;
 						defendArm = new Metaball2DGroup(0.0, 1.0, 0.0);
 				
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 3.0));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),3.0));
-						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing3, py + sin(rslope)*(defendSpacing3),3.0));
+						defendArm->addMetaball(new Metaball2D(px + cos(angle)* defendSpacing1, py + sin(angle) *defendSpacing1, scale*3.0));
+						defendArm->addMetaball(new Metaball2D(px + cos(angle)* defendSpacing2, py + sin(angle) *defendSpacing2,scale*3.0));
+						defendArm->addMetaball(new Metaball2D(px + cos(angle)* defendSpacing3, py + sin(angle)*defendSpacing3,scale*12.0));
 						balls.addSubgroup(defendArm);
 
-						defendFistPx = px + cos(rslope)*defendSpacing3;
-						defendFistPy = py + sin(rslope)*defendSpacing3;
-						defendFistRadius = 3;
+						defendFistPx = px + cos(angle)*defendSpacing3;
+						defendFistPy = py + sin(angle)*defendSpacing3;
+						defendFistRadius = scale*12;
+				}
+				else
+				{
+					rslope = 0;
 				}
 			}
 
@@ -429,6 +472,8 @@ class Amoeba : public Sprite  {
 
 		void retractArm()
 		{
+
+
 			if(attackActive && time(NULL) - attackArmTimer > 0.25)
 			{
 				attackFistPx = 0;
@@ -439,8 +484,10 @@ class Amoeba : public Sprite  {
 				attackActive = false;
 			}
 
-			if(defendActive && time(NULL) - defendArmTimer > 7)
+			if(defendActive && time(NULL) - defendArmTimer > 0.25)
 			{
+				defendFistPx  = 0;
+				defendFistPy = 0;
 				balls.popSubgroup();
 				rslope = 0;
 				defendArm = NULL;
