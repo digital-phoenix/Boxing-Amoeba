@@ -362,7 +362,7 @@ class Amoeba : public Sprite  {
 						attackActive = true;
 						attackArmTimer = time(NULL);
 
-						attackArm = new Metaball2DGroup();
+						attackArm = new Metaball2DGroup(1.0, 0.0, 0.0);
 						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 3.0));
 						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),3.0));
 						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),3.0));
@@ -410,7 +410,7 @@ class Amoeba : public Sprite  {
 				{
 						defendActive = true;
 						defendArmTimer = time(NULL);
-						defendArm = new Metaball2DGroup();
+						defendArm = new Metaball2DGroup(0.0, 1.0, 0.0);
 				
 						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 3.0));
 						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),3.0));

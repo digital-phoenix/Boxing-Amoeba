@@ -17,7 +17,8 @@
 
 typedef struct{
 	Metaball2D ball;
-	int r,g,b;
+	Metaball2D groupBall;
+	double r,g,b;
 	bool cleared;
 }MetaballDrawData;
 
@@ -31,260 +32,19 @@ private:
 	std::list<triangle>blocks[16];
 	bool discovered [NUM_GRIDS][NUM_GRIDS];
 	double values[NUM_GRIDS + 1][NUM_GRIDS + 1];
-	int r,g,b;
+	double r,g,b;
 	int moves[16];
 	double minRadius;
 
 public:
 	
-	Metaball2DGroup(){
+	Metaball2DGroup(double red, double green, double blue){
 
-		r = 255; 
-		g = 0;
-		b = 0;
+		r = red; 
+		g = green;
+		b = blue;
 
 		minRadius = 1000;
-
-		triangle triangles[34];
-
-		moves[0] = 0;
-		blocks[0] = std::list<triangle>();
-
-		triangles[0].points[0].x = 0.0f;
-		triangles[0].points[0].y = 0.0f;		
-		triangles[0].points[1].x = GRID_SIZE / 2.0f;
-		triangles[0].points[1].y = 0.0f;
-		triangles[0].points[2].x = 0.0f;
-		triangles[0].points[2].y = GRID_SIZE / 2.0f;
-		blocks[1] = std::list<triangle>( triangles, triangles + 1);
-		moves[1] = 12;
-
-		triangles[1].points[0].x = GRID_SIZE / 2.0f;
-		triangles[1].points[0].y = 0.0f;
-		triangles[1].points[1].x = GRID_SIZE;
-		triangles[1].points[1].y = 0.0f;
-		triangles[1].points[2].x = GRID_SIZE;
-		triangles[1].points[2].y = GRID_SIZE / 2.0f;
-		blocks[2] = std::list<triangle>( triangles + 1, triangles + 2);
-		moves[2] = 6;
-
-		triangles[2].points[0].x = 0.0f;
-		triangles[2].points[0].y = 0.0f;
-		triangles[2].points[1].x = GRID_SIZE;
-		triangles[2].points[1].y = GRID_SIZE / 2.0f;
-		triangles[2].points[2].x = 0.0f;
-		triangles[2].points[2].y = GRID_SIZE / 2.0f;
-		triangles[3].points[0].x = 0.0f;
-		triangles[3].points[0].y = 0.0f;
-		triangles[3].points[1].x = GRID_SIZE;
-		triangles[3].points[1].y = 0.0f;
-		triangles[3].points[2].x = GRID_SIZE;
-		triangles[3].points[2].y = GRID_SIZE / 2.0f;
-		blocks[3] = std::list<triangle>( triangles + 2, triangles + 4);
-		moves[3] = 14;
-
-		triangles[14].points[0].x = 0;
-		triangles[14].points[0].y = GRID_SIZE;
-		triangles[14].points[1].x = 0;
-		triangles[14].points[1].y = GRID_SIZE / 2.0f;
-		triangles[14].points[2].x = GRID_SIZE / 2.0f;
-		triangles[14].points[2].y = GRID_SIZE;
-		blocks[4] = std::list<triangle>( triangles + 14, triangles + 15);
-		moves[4] = 9;
-
-		triangles[15].points[0].x = GRID_SIZE / 2.0f;
-		triangles[15].points[0].y = 0.0f;
-		triangles[15].points[1].x = 0.0f;
-		triangles[15].points[1].y = GRID_SIZE;
-		triangles[15].points[2].x = 0.0f;
-		triangles[15].points[2].y = 0.0f;
-		triangles[16].points[0].x = GRID_SIZE / 2.0f;
-		triangles[16].points[0].y = GRID_SIZE;
-		triangles[16].points[1].x = 0.0f;
-		triangles[16].points[1].y = GRID_SIZE;
-		triangles[16].points[2].x = GRID_SIZE / 2.0f;
-		triangles[16].points[2].y = 0.0f;
-		blocks[5] = std::list<triangle>( triangles + 15, triangles + 17);
-		moves[5] = 13;
-
-		triangles[17] = triangles[1];
-		triangles[18] = triangles[14];
-
-		triangles[19].points[0].x = GRID_SIZE / 2.0f;
-		triangles[19].points[0].y = GRID_SIZE;
-		triangles[19].points[1].x = 0.0f;
-		triangles[19].points[1].y = GRID_SIZE / 2.0f;
-		triangles[19].points[2].x = GRID_SIZE / 2.0f;
-		triangles[19].points[2].y = 0.0f;
-
-		triangles[20].points[0].x = GRID_SIZE / 2.0f;
-		triangles[20].points[0].y = GRID_SIZE;
-		triangles[20].points[1].x = GRID_SIZE;
-		triangles[20].points[1].y = GRID_SIZE / 2.0f;
-		triangles[20].points[2].x = GRID_SIZE / 2.0f;
-		triangles[20].points[2].y = 0.0f;		
-		blocks[6] = std::list<triangle>( triangles + 17, triangles + 21);
-		moves[6] = 15;
-
-		triangles[21].points[0].x = 0.0f;
-		triangles[21].points[0].y = GRID_SIZE;
-		triangles[21].points[1].x = GRID_SIZE;
-		triangles[21].points[1].y = GRID_SIZE / 2.0f;
-		triangles[21].points[2].x = GRID_SIZE /2.0f;
-		triangles[21].points[2].y = GRID_SIZE;
-
-		triangles[22].points[0].x = 0.0f;
-		triangles[22].points[0].y = GRID_SIZE;
-		triangles[22].points[1].x = GRID_SIZE;
-		triangles[22].points[1].y = 0.0f;
-		triangles[22].points[2].x = GRID_SIZE;
-		triangles[22].points[2].y = GRID_SIZE / 2.0f;
-
-		triangles[23].points[0].x = 0.0f;
-		triangles[23].points[0].y = GRID_SIZE;
-		triangles[23].points[1].x = 0.0f;
-		triangles[23].points[1].y = 0.0f;
-		triangles[23].points[2].x = GRID_SIZE;
-		triangles[23].points[2].y = 0.0f;
-		blocks[7] = std::list<triangle>( triangles + 21, triangles + 24);
-		moves[7] = 4;
-
-		triangles[4].points[0].x = GRID_SIZE / 2.0f;
-		triangles[4].points[0].y = GRID_SIZE;
-		triangles[4].points[1].x = GRID_SIZE;
-		triangles[4].points[1].y = GRID_SIZE / 2.0f;
-		triangles[4].points[2].x = GRID_SIZE;
-		triangles[4].points[2].y = GRID_SIZE;
-		blocks[8] = std::list<triangle>( triangles + 4, triangles + 5);
-		moves[8] = 3;
-
-		triangles[5] = triangles[4];
-		triangles[6] = triangles[0];
-		triangles[7].points[0].x = GRID_SIZE / 2.0f;
-		triangles[7].points[0].y = 0.0f;
-		triangles[7].points[1].x = GRID_SIZE / 2.0f;
-		triangles[7].points[1].y = GRID_SIZE;
-		triangles[7].points[2].x = 0.0f;
-		triangles[7].points[2].y = GRID_SIZE /2.0f;
-		triangles[8].points[0].x = GRID_SIZE / 2.0f;
-		triangles[8].points[0].y = 0.0f;
-		triangles[8].points[1].x = GRID_SIZE;
-		triangles[8].points[1].y = GRID_SIZE /2.0f;
-		triangles[8].points[2].x = GRID_SIZE / 2.0f;
-		triangles[8].points[2].y = GRID_SIZE;
-		blocks[9] = std::list<triangle>( triangles + 5, triangles + 9);
-		moves[9] = 15;
-
-		triangles[9].points[0].x = GRID_SIZE;
-		triangles[9].points[0].y = 0.0f;
-		triangles[9].points[1].x = GRID_SIZE;
-		triangles[9].points[1].y = GRID_SIZE;
-		triangles[9].points[2].x = GRID_SIZE / 2.0f;
-		triangles[9].points[2].y = 0.0f;
-		triangles[10].points[0].x = GRID_SIZE;
-		triangles[10].points[0].y = GRID_SIZE;
-		triangles[10].points[1].x = GRID_SIZE /2.0f;
-		triangles[10].points[1].y = GRID_SIZE;
-		triangles[10].points[2].x = GRID_SIZE / 2.0f;
-		triangles[10].points[2].y = 0.0f;
-		blocks[10] = std::list<triangle>( triangles + 9, triangles + 11);
-		moves[10] = 7;
-		
-		triangles[11].points[0].x = 0.0f;
-		triangles[11].points[0].y = GRID_SIZE / 2.0f;
-		triangles[11].points[1].x = 0.0f;
-		triangles[11].points[1].y = 0.0f;
-		triangles[11].points[2].x = GRID_SIZE;
-		triangles[11].points[2].y = 0.0f;
-		triangles[12].points[0].x = 0.0f;
-		triangles[12].points[0].y = GRID_SIZE / 2.0f;
-		triangles[12].points[1].x = GRID_SIZE;
-		triangles[12].points[1].y = 0.0f;
-		triangles[12].points[2].x = GRID_SIZE /2.0f;
-		triangles[12].points[2].y = GRID_SIZE;
-		triangles[13].points[0].x = GRID_SIZE /2.0f;
-		triangles[13].points[0].y = GRID_SIZE;
-		triangles[13].points[1].x = GRID_SIZE;
-		triangles[13].points[1].y = 0.0f;
-		triangles[13].points[2].x = GRID_SIZE;
-		triangles[13].points[2].y = GRID_SIZE;
-		blocks[11] = std::list<triangle>( triangles + 11, triangles + 14);
-		moves[11] = 15;
-
-		triangles[24].points[0].x = 0.0f;
-		triangles[24].points[0].y = GRID_SIZE;
-		triangles[24].points[1].x = 0.0f;
-		triangles[24].points[1].y = GRID_SIZE / 2.0f;
-		triangles[24].points[2].x = GRID_SIZE;
-		triangles[24].points[2].y = GRID_SIZE / 2.0f;
-		triangles[25].points[0].x = 0.0f;
-		triangles[25].points[0].y = GRID_SIZE;
-		triangles[25].points[1].x = GRID_SIZE;
-		triangles[25].points[1].y = GRID_SIZE / 2.0f;
-		triangles[25].points[2].x = GRID_SIZE;
-		triangles[25].points[2].y = GRID_SIZE;
-		blocks[12] = std::list<triangle>( triangles + 24, triangles + 26);
-		moves[12] = 11;
-
-		triangles[26].points[0].x = 0.0f;
-		triangles[26].points[0].y = GRID_SIZE;
-		triangles[26].points[1].x = GRID_SIZE;
-		triangles[26].points[1].y = GRID_SIZE / 2.0f;
-		triangles[26].points[2].x = GRID_SIZE;
-		triangles[26].points[2].y = GRID_SIZE;
-
-		triangles[27].points[0].x = 0.0f;
-		triangles[27].points[0].y = GRID_SIZE;
-		triangles[27].points[1].x = GRID_SIZE / 2.0f;
-		triangles[27].points[1].y = 0.0f;
-		triangles[27].points[2].x = GRID_SIZE;
-		triangles[27].points[2].y = GRID_SIZE / 2.0f;
-
-		triangles[28].points[0].x = 0.0f;
-		triangles[28].points[0].y = GRID_SIZE;
-		triangles[28].points[1].x = 0.0f;
-		triangles[28].points[1].y = 0.0f;
-		triangles[28].points[2].x = GRID_SIZE / 2.0f;
-		triangles[28].points[2].y = 0.0f;
-		blocks[13] = std::list<triangle>( triangles + 26, triangles + 29);
-		moves[13] = 15;
-
-		triangles[29].points[0].x = 0.0f;
-		triangles[29].points[0].y = GRID_SIZE;
-		triangles[29].points[1].x = 0.0f;
-		triangles[29].points[1].y = GRID_SIZE / 2.0f;
-		triangles[29].points[2].x = GRID_SIZE;
-		triangles[29].points[2].y = GRID_SIZE;
-		triangles[30].points[0].x = 0.0f;
-		triangles[30].points[0].y = GRID_SIZE / 2.0f;
-		triangles[30].points[1].x = GRID_SIZE / 2.0f;
-		triangles[30].points[1].y = 0.0f;
-		triangles[30].points[2].x = GRID_SIZE;
-		triangles[30].points[2].y = GRID_SIZE;
-		triangles[31].points[0].x = GRID_SIZE;
-		triangles[31].points[0].y = GRID_SIZE;
-		triangles[31].points[1].x = GRID_SIZE / 2.0f;
-		triangles[31].points[1].y = 0.0f;
-		triangles[31].points[2].x = GRID_SIZE;
-		triangles[31].points[2].y = 0.0f;
-		blocks[14] = std::list<triangle>( triangles + 29, triangles + 32);
-		moves[14] = 15;
-
-		triangles[32].points[0].x = 0.0f;
-		triangles[32].points[0].y = 0.0f;
-		triangles[32].points[1].x = GRID_SIZE;
-		triangles[32].points[1].y = 0.0f;
-		triangles[32].points[2].x = GRID_SIZE;
-		triangles[32].points[2].y = GRID_SIZE;
-
-		triangles[33].points[0].x = 0.0f;
-		triangles[33].points[0].y = 0.0f;
-		triangles[33].points[1].x = GRID_SIZE;
-		triangles[33].points[1].y = GRID_SIZE;
-		triangles[33].points[2].x = 0.0f;
-		triangles[33].points[2].y = GRID_SIZE;
-		blocks[15] = std::list<triangle>( triangles + 32, triangles + 34);
-		moves[15] = 15;
 
 	}
 
@@ -324,6 +84,7 @@ public:
 		MetaballDrawData data;
 		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
 			data.ball = *it;
+			data.groupBall = balls.front();
 			data.r = r;
 			data.g = g;
 			data.b = b;
@@ -520,21 +281,40 @@ public:
 					}
 				}
 				ballData[closest].cleared = true;
+				
+				if( closest != i){
+					glBegin( GL_TRIANGLES);
 
-				glColor3f(1.0, 0, 0);
+					if( lastPoint.first * ballData[i].groupBall.getPy() - lastPoint.second * ballData[i].groupBall.getPx() + lastPoint.second * nextPoint.first
+						- lastPoint.first * nextPoint.second + ballData[i].groupBall.getPx() * nextPoint.second - nextPoint.first * ballData[i].groupBall.getPy() > 0.00001){
+					
+						glVertex2d( lastPoint.first, lastPoint.second);
+						glVertex2d( nextPoint.first, nextPoint.second);
+						glVertex2d( ballData[i].groupBall.getPx(), ballData[i].groupBall.getPy());
+
+					} else{
+						glVertex2d( nextPoint.first, nextPoint.second);
+						glVertex2d( lastPoint.first, lastPoint.second);
+						glVertex2d( ballData[i].groupBall.getPx(), ballData[i].groupBall.getPy());
+					}
+					glEnd();
+					
+				}
+
+				glColor3f(ballData[closest].r,ballData[closest].g, ballData[closest].b);
 				glBegin( GL_TRIANGLES);
-				closest = 0;
-				if( lastPoint.first * ballData[closest].ball.getPy() - lastPoint.second * ballData[closest].ball.getPx() + lastPoint.second * nextPoint.first
-					- lastPoint.first * nextPoint.second + ballData[closest].ball.getPx() * nextPoint.second - nextPoint.first * ballData[closest].ball.getPy() > 0.00001){
+
+				if( lastPoint.first * ballData[closest].groupBall.getPy() - lastPoint.second * ballData[closest].groupBall.getPx() + lastPoint.second * nextPoint.first
+					- lastPoint.first * nextPoint.second + ballData[closest].groupBall.getPx() * nextPoint.second - nextPoint.first * ballData[closest].groupBall.getPy() > 0.00001){
 					
 					glVertex2d( lastPoint.first, lastPoint.second);
 					glVertex2d( nextPoint.first, nextPoint.second);
-					glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+					glVertex2d( ballData[closest].groupBall.getPx(), ballData[closest].groupBall.getPy());
 
 				} else{
 					glVertex2d( nextPoint.first, nextPoint.second);
 					glVertex2d( lastPoint.first, lastPoint.second);
-					glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+					glVertex2d( ballData[closest].groupBall.getPx(), ballData[closest].groupBall.getPy());
 				}
 				glEnd();
 
@@ -542,17 +322,17 @@ public:
 				if( tmp < 20){
 
 					glBegin( GL_TRIANGLES);
-					if( start.first * ballData[closest].ball.getPy() - start.second * ballData[closest].ball.getPx() + start.second * nextPoint.first
-						- start.first * nextPoint.second + ballData[closest].ball.getPx() * nextPoint.second - nextPoint.first * ballData[closest].ball.getPy() > 0.00001){
+					if( start.first * ballData[closest].groupBall.getPy() - start.second * ballData[closest].groupBall.getPx() + start.second * nextPoint.first
+						- start.first * nextPoint.second + ballData[closest].groupBall.getPx() * nextPoint.second - nextPoint.first * ballData[closest].groupBall.getPy() > 0.00001){
 
 						glVertex2d( nextPoint.first, nextPoint.second);		
 						glVertex2d( start.first, start.second);
-						glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+						glVertex2d( ballData[closest].groupBall.getPx(), ballData[closest].groupBall.getPy());
 
 					} else{
 						glVertex2d( start.first, start.second);
 						glVertex2d( nextPoint.first, nextPoint.second);
-						glVertex2d( ballData[closest].ball.getPx(), ballData[closest].ball.getPy());
+						glVertex2d( ballData[closest].groupBall.getPx(), ballData[closest].groupBall.getPy());
 					}
 					glEnd();
 					

@@ -1,8 +1,8 @@
 #include"Amoeba.h"
 
-Amoeba::Amoeba(){}
+Amoeba::Amoeba() : balls(0.0, 0.0, 1.0){}
 
-Amoeba::Amoeba(double px, double py, double radius, bool normal)
+Amoeba::Amoeba(double px, double py, double radius, bool normal) : balls(0.0,0.0,1.0)
 {
 	velX = 0;
 	velY = 0;
