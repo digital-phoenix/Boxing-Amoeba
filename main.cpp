@@ -23,7 +23,7 @@ int FPS = 0;
 void init ( GLvoid )   
 {
 	player = new Amoeba(50,50, 50,1, true);
-	ai = new AI(450,450 , 50,1, true);
+	ai = new AI(450,450 , 50,1, player, true);
 	sprites.push_back( (Sprite*) (player) );
 	sprites.push_back( (Sprite*) (  ai  ) );
 	glShadeModel(GL_SMOOTH);
@@ -45,67 +45,20 @@ void display ( void )
 	glClear(GL_COLOR_BUFFER_BIT);	
 	glLoadIdentity();	
 
-goto skip;
-resize:
-
-while(!sprites.empty() )
-{
-	sprites.pop_front();
-}
-
-printf("%d", sprites.size());
-
-sprites.push_back( (Sprite*) (player) );
-sprites.push_back( (Sprite*) (  ai  ) );
-
-printf("%d", sprites.size());
-
-
-skip:
-
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
 	{
-			Sprite* s = *it;
-
-			if(s->getResize())
-			{
-				if( (s->getIdentifier() ) == ("AI"))
-				{
-					
-					ai = NULL;
-					ai = new AI(s->getPx(), s->getPy(), s->getRadius(), 0.75*s->getScale(), true);
-				}
-				else
-				{
-					player = NULL;
-					player = new Amoeba(s->getPx(), s->getPy(), s->getRadius(), 0.5*s->getScale(), true);
-				}
-				goto resize;
-				
-			}
-			
-			if( (s->getIdentifier() ) == ("AI") )
-			{
-				s->update((Sprite*)player);
-			}
-			else
-			{
-				s->update();
-			}
 
 		for( std::list<Sprite*>::iterator it2 = sprites.begin(); it2 != sprites.end(); it2++)
 		{
 			
-			if(distance(it, sprites.end()) != distance(it2, sprites.end()))
+			if(it != it2)
 			{
-				if(s->checkCollision(*it2))
-				{
-					s->collision(*it2);
-				}
+				(*it)->collision(*it2);
 			}
 		}
 
-		s->draw();
+		(*it)->draw();
+		(*it)->update();
 	}
 
 	glutSwapBuffers ( );
@@ -169,26 +122,31 @@ void keyboard ( unsigned char key, int x, int y )
 
 void arrow_keys ( int a_keys, int x, int y )
 {
-  switch ( a_keys ) {
-    case GLUT_KEY_UP:
-		if( (player->getAvailableMoves())[0] )
-			player->setVely( 5.0f);
-		break;
-    case GLUT_KEY_DOWN:
-		if( (player->getAvailableMoves())[1] )
-			player->setVely( -5.0f);
-		break;
-	case GLUT_KEY_LEFT:
-		if( (player->getAvailableMoves())[2] )
-			player->setVelx(-5.0f);
-		break;
-	case GLUT_KEY_RIGHT:
-		if( (player->getAvailableMoves())[3] )
-			player->setVelx(5.0f);
-		break;
-    default:
-      break;
-  }
+
+	bool moves[4];
+	player->getAvailableMoves(moves);
+
+	switch ( a_keys ) {
+		case GLUT_KEY_UP:
+			if( moves[0] )
+				player->setVely( 5.0f);
+			break;
+		case GLUT_KEY_DOWN:
+			if( moves[1] )
+				player->setVely( -5.0f);
+			break;
+		case GLUT_KEY_LEFT:
+			if( moves[2] )
+				player->setVelx(-5.0f);
+			break;
+		case GLUT_KEY_RIGHT:
+			if( moves[3] )
+				player->setVelx(5.0f);
+			break;
+		default:
+			break;
+	}
+
 }
 
 int main ( int argc, char** argv )

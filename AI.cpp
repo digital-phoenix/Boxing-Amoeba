@@ -1,10 +1,11 @@
 # include "AI.h"
 
-AI::AI(double px, double py, double radius,double scale, bool normal)
+AI::AI(double px, double py, double radius,double scale, Amoeba* player, bool normal)
 {
 	velX = 0;
 	velY = 0;
 
+	this->player = player;
 	this->px = px;
 	this->py = py;
 	this->radius = radius*scale;
@@ -12,8 +13,6 @@ AI::AI(double px, double py, double radius,double scale, bool normal)
 	this->scale = scale;
 
 	needToResize = false;
-
-	identifier = "AI";
 
 	attackArm = NULL;
 
@@ -52,3 +51,30 @@ AI::AI(double px, double py, double radius,double scale, bool normal)
 
 	balls.addMetaball(new Metaball2D(this->px,this->py,this->radius));//body of AI
 }
+
+void AI::update(){
+
+	if(!isCollision)
+	{
+		if(player->getPx() > px)
+		{
+			velX = 0.2;
+		}
+		else
+		{
+			velX = -0.2;
+		}
+
+		if(player->getPy() > py)
+		{
+			velY = 0.2;
+		}
+		else
+		{
+			velY = -0.2;
+		}
+
+	}
+
+	Amoeba::update();
+}					

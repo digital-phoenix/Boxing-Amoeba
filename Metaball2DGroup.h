@@ -96,7 +96,9 @@ public:
 
 	void popSubgroup()
 	{
-		subgroups.pop_back();
+		if( subgroups.size() >= 1){
+			subgroups.pop_back();
+		}
 	}
 
 	double evaluatePoint(double x, double y){
@@ -246,6 +248,16 @@ public:
 			glVertex2d( x, y);
 		}
 		glEnd();
+	}
+ 
+	void decreaseRadius( double val){
+		for( std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
+			if( it->getRadius() < val){
+				it->setRadius(5.0);
+			}else {
+				it->setRadius( it->getRadius() - val);
+			}
+		}
 	}
 
 	void draw(){

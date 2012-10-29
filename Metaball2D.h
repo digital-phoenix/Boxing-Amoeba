@@ -61,7 +61,11 @@ public:
 	inline double getRadius(){
 		return radius;
 	}
-	
+
+	inline void setRadius(double val){
+		radius = val;
+	}
+
 	inline double getPx(){
 		return px;
 	}
