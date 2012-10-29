@@ -9,7 +9,7 @@ Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal)
 
 	this->px = px;
 	this->py = py;
-	this->radius = radius;
+	this->radius = radius*scale;
 	this->normal = normal;
 	this->scale = scale;
 	needToResize = false;

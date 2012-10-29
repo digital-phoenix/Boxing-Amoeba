@@ -116,7 +116,7 @@ class Amoeba : public Sprite  {
 				colPx = attackData[0];
 				colPy = attackData[1];
 
-				if(distance < radius + attackData[2] + scale*5)
+				if(distance < radius + attackData[2])
 				{
 				
 					isCollision = true;
@@ -137,7 +137,7 @@ class Amoeba : public Sprite  {
 				colPx = DefendData[0];
 				colPy = DefendData[1];
 
-				if(distance < radius + DefendData[2] + scale*5)
+				if(distance < radius + DefendData[2])
 				{
 				
 					isCollision = true;

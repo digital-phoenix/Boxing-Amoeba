@@ -45,44 +45,55 @@ void display ( void )
 	glClear(GL_COLOR_BUFFER_BIT);	
 	glLoadIdentity();	
 
-goto skip;
-resize:
 
-while(!sprites.empty() )
-{
-	sprites.pop_front();
-}
+	bool needToResize  = false;
 
-printf("%d", sprites.size());
+	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
+	{
+		Sprite* s = *it;
+			
+		if(s->getResize())
+		{
 
-sprites.push_back( (Sprite*) (player) );
-sprites.push_back( (Sprite*) (  ai  ) );
+			needToResize = true;
 
-printf("%d", sprites.size());
+			if( (s->getIdentifier() ) == ("AI"))
+			{
+				
 
+				ai = NULL;
+				ai = new AI(s->getPx() , s->getPy(), s->getRadius(), 0.75*s->getScale(), true);
+				
+			}
 
-skip:
+			if(s->getIdentifier()  == ("Amoeba"))
+			{
+		
+				player = NULL;
+				player = new Amoeba(s->getPx(), s->getPy(), s->getRadius(), 0.5*s->getScale(), true);
+			}
+		}
+
+	}
+
+	if(needToResize)
+	{
+		while(!sprites.empty() )
+		{
+			sprites.pop_front();
+		}
+
+		sprites.push_back( (Sprite*) (player) );
+		sprites.push_back( (Sprite*) (  ai  ) );
+
+		printf("%d", sprites.size());
+	}
+	
 
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
 	{
 			Sprite* s = *it;
 
-			if(s->getResize())
-			{
-				if( (s->getIdentifier() ) == ("AI"))
-				{
-					
-					ai = NULL;
-					ai = new AI(s->getPx(), s->getPy(), s->getRadius(), 0.75*s->getScale(), true);
-				}
-				else
-				{
-					player = NULL;
-					player = new Amoeba(s->getPx(), s->getPy(), s->getRadius(), 0.5*s->getScale(), true);
-				}
-				goto resize;
-				
-			}
 			
 			if( (s->getIdentifier() ) == ("AI") )
 			{
