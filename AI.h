@@ -76,6 +76,12 @@ class AI : Amoeba
 			this->player = player;
 		}
 		
+	
+		
 		void update();
 
+		void extendAttackArm();
+
+		void extendDefendArm();		
+	
 };
