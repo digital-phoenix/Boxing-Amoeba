@@ -3,6 +3,7 @@
 
 #include"Sprite.h"
 #include"Metaball2DGroup.h"
+#include "GraphicState.h"
 #include <string>
 #include <time.h>
 
@@ -62,6 +63,9 @@ class Amoeba : public Sprite  {
 		bool isDefend;
 		bool isAttack;
 		bool isWall;
+		double wVx;
+		double wVy;
+	
 
 		double colPx;
 		double colPy;
@@ -97,6 +101,8 @@ class Amoeba : public Sprite  {
 			
 			double distance = sqrt(  ((py - obj->getPy()) * (py - obj->getPy()) ) +  ((px - obj->getPx() ) * (px - obj->getPx() ))) ; 
 
+
+			/*Body Collision Test*/
 			if(distance < radius + obj->getRadius())
 			{
 				isCollision = true;
@@ -105,6 +111,7 @@ class Amoeba : public Sprite  {
 				return true;
 			}
 
+			/*Attack Collision Test*/
 			double *attackData; 
 			attackData = obj->getAttackData();
 			
@@ -126,6 +133,7 @@ class Amoeba : public Sprite  {
 				}
 			}
 
+			/*Defend Collision Test*/
 			double *DefendData; 
 			DefendData = obj->getDefendData();
 			
@@ -147,6 +155,23 @@ class Amoeba : public Sprite  {
 				}
 			}
 
+			
+			/*Wall Collision test*/
+			if(px-radius <=0 || px+radius >= screenRight)
+			{
+				isWall = true;
+				wVx = -velX;
+				wVy = velY;
+				return true;
+			}
+
+		    if(py - radius <=0 || py + radius >= screenTop)
+			{
+				isWall = true;
+				wVx = velX;
+				wVy = -velY;
+				return true;
+			}	 
 
 			isCollision = false;
 			isBody = false;
@@ -215,11 +240,13 @@ class Amoeba : public Sprite  {
 
 		void collision(Sprite *obj)
 		{
+			if(isWall)
+			{
+				velX = wVx;
+				velY = wVy;
 
-			velX = 0;
-			velY = 0;
-
-			if(isDefend)
+			}
+			else if(isDefend)
 			{
 				
 				    colPx = colPx + obj->getPx();
@@ -227,30 +254,31 @@ class Amoeba : public Sprite  {
 
 					if(px < colPx)
 					{
-						velX = -50;
+						velX = -20;
 					}
 					else
 					{
-						velX = 50;
+						velX = 20;
 					}
 
 					if(py < colPy)
 					{
-						velY = -50;
+						velY = -20;
 					}
 					else
 					{
-						velY = 50;
+						velY = 20;
 					}
 			}
 			else if(isAttack)
 			{
-
-
+				needToResize = true;
 
 			}
 			else if(isBody)
 			{
+				velX = 0;
+				velY = 0;
 
 				colPx = obj->getPx();
 				colPy = obj->getPy();

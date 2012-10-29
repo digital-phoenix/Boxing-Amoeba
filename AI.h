@@ -136,20 +136,20 @@ class AI : Amoeba
 
 					if(px < colPx)
 					{
-						velX = -50;
+						velX = -20;
 					}
 					else
 					{
-						velX = 50;
+						velX = 20;
 					}
 
 					if(py < colPy)
 					{
-						velY = -50;
+						velY = -20;
 					}
 					else
 					{
-						velY = 50;
+						velY = 20;
 					}
 					
 			}

@@ -61,6 +61,10 @@ Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal)
 	isDefend = false;
 	isAttack = false;
 	isWall = false;
+	wVx = 0;
+	wVy = 0;
+	
+
 
 	attackFistPx = 0;
 	attackFistPy = 0;
