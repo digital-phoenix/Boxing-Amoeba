@@ -12,6 +12,8 @@ class Amoeba : public Sprite  {
 		/*Characteristics*/
 		Metaball2DGroup balls;
 		bool needToResize;
+		bool morphBall;
+		clock_t morphBallTimer;
 		double velX, velY;
 		double px, py;
 		double radius;
@@ -178,6 +180,62 @@ class Amoeba : public Sprite  {
 		void decAngle()
 		{
 			//radAngle-=20;
+		}
+
+		void morph()
+		{
+			if(!morphBall)
+			{
+				
+				morphBallTimer = clock();
+
+				if(velX != 0 || velY != 0)
+				{
+					morphBall = true;
+
+					if(velX > 0 && velY > 0)//Up-Right
+					{
+						balls.addMetaball(new Metaball2D(px + radius + velX, py + radius + velY, 10));
+					}
+					else if(velX > 0 && velY < 0)//Down-Right
+					{
+						balls.addMetaball(new Metaball2D(px + radius + velX, py - radius + velY, 10));
+					}
+					else if(velX < 0 && velY > 0)//Up-Left
+					{
+						balls.addMetaball(new Metaball2D(px - radius + velX, py + radius + velY, 10));
+					}
+					else if(velX < 0 && velY < 0)//Down-Left
+					{
+						balls.addMetaball(new Metaball2D(px - radius + velX, py - radius + velY, 10));
+					}
+					else if(velX == 0 && velY > 0)//Up
+					{
+						balls.addMetaball(new Metaball2D(px, py + radius + velY, 10));
+					}
+					else if(velX == 0 & velY < 0)//Bottom
+					{
+						balls.addMetaball(new Metaball2D(px, py - radius + velY, 10));
+					}
+					else if(velX > 0 && velY == 0)//Right
+					{
+						balls.addMetaball(new Metaball2D(px + radius + velX, py, 10));
+					}
+					else//Left
+					{
+						balls.addMetaball(new Metaball2D(px - radius + velX, py, 10));
+					}
+				}
+				
+			}
+			
+			if(morphBall && clock() - morphBallTimer > 400)
+			{
+				morphBallTimer = 0;
+				morphBall = false;
+				balls.popMetaball();
+			}
+
 		}
 
 		void extendAttackArm();

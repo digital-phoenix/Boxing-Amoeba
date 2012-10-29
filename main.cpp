@@ -5,6 +5,7 @@
 #include<time.h>
 #include "Sprite.h"
 #include "Amoeba.h"
+
 #include "AI.h"
 #include "GraphicState.h"
 
@@ -113,7 +114,12 @@ void keyboard ( unsigned char key, int x, int y )
 
 		case('w'):
 			player->decAngle();
-		break;
+			break;
+
+		case(' '):
+			player->setVelocity(0,0);
+			break;
+
 
 		default:
 			break;

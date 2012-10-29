@@ -13,6 +13,8 @@ AI::AI(double px, double py, double radius,double scale, Amoeba* player, bool no
 	this->scale = scale;
 
 	needToResize = false;
+	morphBall = false;
+	morphBallTimer = 0;
 
 	attackArm = NULL;
 

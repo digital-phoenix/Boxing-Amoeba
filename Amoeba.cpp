@@ -13,6 +13,8 @@ Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal) :
 	this->normal = normal;
 	this->scale = scale;
 	needToResize = false;
+	morphBall = false;
+	morphBallTimer = 0;
 
 	attackArm = NULL;
 
@@ -187,6 +189,8 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 	return isCollision;
 }
 
+
+
 void Amoeba::collision(Sprite* obj)
 { 
 	if( obj->getIdentifier() == AI_TYPE || obj->getIdentifier() == AMOEBA_TYPE)
@@ -197,6 +201,7 @@ void Amoeba::collision(Sprite* obj)
 
 void Amoeba::update()
 {
+	morph();
 
 	px += velX;
 	py += velY;
@@ -211,6 +216,7 @@ void Amoeba::update()
 			
 	retractArm();
 	balls.shiftGroup(velX, velY);
+
 
 }
 
