@@ -76,32 +76,43 @@ void AI::update()
 	}
 
 	if(!isCollision)
-	{
 
+			if( velX < 2)
+				velX += 0.2;
+			if( velX > -2)
+				velX += -0.2;
+			if( velY < 2)
+				velY += 0.2;
+			if( velY > -2)
+				velY += -0.2;
+	else if(isBody)
+	{
 		if(player->getPx() > px)
 		{
 			if( velX < 2)
-				velX += 0.2;
+				velX += -0.5;
 		}
 		else
 		{
 			if( velX > -2)
-				velX += -0.2;
+				velX += 0.5;
 		}
 
 		if(player->getPy() > py)
 		{
 			if( velY < 2)
-				velY += 0.2;
+				velY += -0.5;
 		}
 		else
 		{
 			if( velY > -2)
-				velY += -0.2;
+				velY += 0.5;
 		}
 		
 
 	}
+
+	
 
 	Amoeba::update();
 			
