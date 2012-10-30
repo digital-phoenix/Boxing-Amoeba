@@ -3,6 +3,7 @@
 
 #include"Sprite.h"
 #include"Metaball2DGroup.h"
+#include"Obstacle.h"
 #include <string>
 #include <time.h>
 
@@ -189,5 +190,4 @@ class Amoeba : public Sprite  {
 
 		void retractArm();
 };
-
 #endif

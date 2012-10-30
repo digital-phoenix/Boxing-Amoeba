@@ -77,21 +77,26 @@ void AI::update()
 
 		if(player->getPx() > px)
 		{
-			velX = 0.2;
+			if( velX < 2)
+				velX += 0.2;
 		}
 		else
 		{
-			velX = -0.2;
+			if( velX > -2)
+				velX += -0.2;
 		}
 
 		if(player->getPy() > py)
 		{
-			velY = 0.2;
+			if( velY < 2)
+				velY += 0.2;
 		}
 		else
 		{
-			velY = -0.2;
+			if( velY > -2)
+				velY += -0.2;
 		}
+		
 
 	}
 

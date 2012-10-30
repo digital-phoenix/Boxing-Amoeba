@@ -7,6 +7,7 @@
 #include "Amoeba.h"
 #include "AI.h"
 #include "GraphicState.h"
+#include "Obstacle.h"
 
 std::list<Sprite*> sprites;
 Amoeba *player;
@@ -22,10 +23,12 @@ int FPS = 0;
 
 void init ( GLvoid )   
 {
-	player = new Amoeba(50,50, 50,1, true);
+
+	player = new Amoeba(51,51, 50,1, true);
 	ai = new AI(450,450 , 50,1, player, true);
 	sprites.push_back( (Sprite*) (player) );
 	sprites.push_back( (Sprite*) (  ai  ) );
+	sprites.push_back( (Sprite*)(new Obstacle()) );
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable ( GL_COLOR_MATERIAL );
