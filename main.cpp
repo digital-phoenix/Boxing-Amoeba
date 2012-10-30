@@ -5,6 +5,7 @@
 #include<time.h>
 #include "Sprite.h"
 #include "Amoeba.h"
+
 #include "AI.h"
 #include "GraphicState.h"
 
@@ -22,8 +23,8 @@ int FPS = 0;
 
 void init ( GLvoid )   
 {
-	player = new Amoeba(50,50, 50, true);
-	ai = new AI(450,450 , 50, true);
+	player = new Amoeba(100,100, 50,1, true);
+	ai = new AI(400,400 , 50,1, player, true);
 	sprites.push_back( (Sprite*) (player) );
 	sprites.push_back( (Sprite*) (  ai  ) );
 	glShadeModel(GL_SMOOTH);
@@ -45,33 +46,20 @@ void display ( void )
 	glClear(GL_COLOR_BUFFER_BIT);	
 	glLoadIdentity();	
 
-		
-
 	for( std::list<Sprite*>::iterator it = sprites.begin(); it != sprites.end(); it++)
 	{
-			Sprite* s = *it;
-			if( (s->getIdentifier() ) == ("AI") )
-			{
-				s->update((Sprite*)player);
-			}
-			else
-			{
-				s->update();
-			}
 
 		for( std::list<Sprite*>::iterator it2 = sprites.begin(); it2 != sprites.end(); it2++)
 		{
 			
-			if(distance(it, sprites.end()) != distance(it2, sprites.end()))
+			if(it != it2)
 			{
-				if(s->checkCollision(*it2))
-				{
-					s->collision(*it2);
-				}
+				(*it)->collision(*it2);
 			}
 		}
 
-		s->draw();
+		(*it)->draw();
+		(*it)->update();
 	}
 
 	glutSwapBuffers ( );
@@ -93,13 +81,13 @@ void mouse(int btn, int state, int x, int y)
 {
     if(btn==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
     {
-		player->setLeftMousePos(x,y);
+		player->setLeftMousePos(x,screenTop -y);
 		player->extendAttackArm();
     }
 
     if(btn==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
     {
-		player->setRightMousePos(x,y);
+		player->setRightMousePos(x, screenTop - y);
 		player->extendDefendArm();
     }
 }
@@ -126,7 +114,12 @@ void keyboard ( unsigned char key, int x, int y )
 
 		case('w'):
 			player->decAngle();
-		break;
+			break;
+
+		case(' '):
+			player->setVelocity(0,0);
+			break;
+
 
 		default:
 			break;
@@ -135,26 +128,31 @@ void keyboard ( unsigned char key, int x, int y )
 
 void arrow_keys ( int a_keys, int x, int y )
 {
-  switch ( a_keys ) {
-    case GLUT_KEY_UP:
-		if( (player->getAvailableMoves())[0] )
-			player->setVely( 5.0f);
-		break;
-    case GLUT_KEY_DOWN:
-		if( (player->getAvailableMoves())[1] )
-			player->setVely( -5.0f);
-		break;
-	case GLUT_KEY_LEFT:
-		if( (player->getAvailableMoves())[2] )
-			player->setVelx(-5.0f);
-		break;
-	case GLUT_KEY_RIGHT:
-		if( (player->getAvailableMoves())[3] )
-			player->setVelx(5.0f);
-		break;
-    default:
-      break;
-  }
+
+	bool moves[4];
+	player->getAvailableMoves(moves);
+
+	switch ( a_keys ) {
+		case GLUT_KEY_UP:
+			if( moves[0] )
+				player->setVely( 5.0f);
+			break;
+		case GLUT_KEY_DOWN:
+			if( moves[1] )
+				player->setVely( -5.0f);
+			break;
+		case GLUT_KEY_LEFT:
+			if( moves[2] )
+				player->setVelx(-5.0f);
+			break;
+		case GLUT_KEY_RIGHT:
+			if( moves[3] )
+				player->setVelx(5.0f);
+			break;
+		default:
+			break;
+	}
+
 }
 
 int main ( int argc, char** argv )
@@ -164,8 +162,8 @@ int main ( int argc, char** argv )
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
 	glutInitWindowSize( 500, 500 ); 
 	glutCreateWindow( "Amoeba Boxing" );
-	glutGameModeString("800x600:16@60");
-	glutEnterGameMode();
+	//glutGameModeString("800x600:16@60");
+	//glutEnterGameMode();
 	glutDisplayFunc( display );
 	glutReshapeFunc( reshape );
 	glutMouseFunc(mouse);
