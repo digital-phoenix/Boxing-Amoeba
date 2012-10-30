@@ -117,31 +117,27 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 	if(attackData[0] != 0 && attackData[2] == scale*3)
 	{
 
-		if(!isHit)
-		{
-			isHit = true;
-			isHitTimer = time(NULL);
-			/*Attack Collision Test*/		
-			distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) +  ((px - attackData[0]) * (px - attackData[0])))) ; 
-			
-			colPx = attackData[0];
-			colPy = attackData[1];
+		distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) + ((px - attackData[0]) * (px - attackData[0])))) ;
+
+		colPx = attackData[0];
+		colPy = attackData[1];
 
 		if(distance < radius + attackData[2] + 5)
-			{
-				retractAttackArm();
-				retractDefendArm();
+		{
+			retractAttackArm();
+			retractDefendArm();
 
-				balls.decreaseRadius(10);
-				if( radius > 10)
-				{
-					radius -= 10;
-				}
-				else
-				{
-					radius = 5;
-				}
-						if(px < colPx)
+			balls.decreaseRadius(10);
+			if( radius > 10)
+			{
+				radius -= 10;
+			}
+			else
+			{
+				radius = 5;
+			}
+
+			if(px < colPx)
 			{
 				velX = -10;
 			}
@@ -159,11 +155,11 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 				velY = 10;
 			}
 
-				isAttack = true;
-				return true;
-			}
+			isAttack = true;
+			return true;
 		}
 	}
+	
 
 	/*Defend Collision Test*/
 	double DefendData[3]; 

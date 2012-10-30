@@ -15,6 +15,9 @@ class Amoeba : public Sprite  {
 		bool needToResize;
 		bool isHit;
 		time_t isHitTimer;
+		bool morphBall;
+		clock_t morphBallTimer;
+
 		double velX, velY;
 		double px, py;
 		double radius;

@@ -118,6 +118,10 @@ void keyboard ( unsigned char key, int x, int y )
 			player->decAngle();
 		break;
 
+		case(' '):
+			player->setVelocity(0,0);
+			break;
+
 		default:
 			break;
 	}

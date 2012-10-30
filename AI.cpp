@@ -121,7 +121,7 @@ void AI::extendAttackArm()
 		attackSpacing3 = attackSpacing2 + radius/2;
 
 
-		if(leftMx < px)
+		if(player->getPx() < px)
 		{
 
 			attackSpacing1 = (-1)*attackSpacing1;
@@ -163,7 +163,7 @@ void AI::extendDefendArm()
 		defendSpacing2 = defendSpacing1 + radius/2;
 		defendSpacing3 = defendSpacing2 + radius/2;
 
-		if(rightMx < px)
+		if(player->getPx() < px)
 		{
 			defendSpacing1 = (-1)*defendSpacing1;
 			defendSpacing2 = (-1)*defendSpacing2;
