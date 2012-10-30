@@ -10,14 +10,12 @@ class Amoeba : public Sprite  {
 	protected:
 
 		/*Characteristics*/
+		std::string identifier;
 		Metaball2DGroup balls;
-		bool needToResize;
-		bool morphBall;
-		clock_t morphBallTimer;
 		double velX, velY;
 		double px, py;
+		int radAngle;
 		double radius;
-		double scale;
 		bool normal;
 
 
@@ -39,7 +37,6 @@ class Amoeba : public Sprite  {
 		bool defendSegActive;
 		bool defendSeg2Active;
 		time_t defendArmTimer;
-		time_t defendWaitTimer;
 
 		int defendSpacing1;
 		int defendSpacing2;
@@ -76,54 +73,151 @@ class Amoeba : public Sprite  {
 
 	public:
 		Amoeba();
-		Amoeba(double,double, double, double, bool);
+		Amoeba(double,double, double, bool);
 		
-		int getIdentifier(){
-			return AMOEBA_TYPE;
-		}
-
 		void draw(){
 			balls.draw();
 		};
 
-		bool getResize()
+		bool checkCollision(Sprite* obj)
+		{ 
+			//(y2 - y1)² + (x2 - x1)²
+			
+			double distance = sqrt(  ((py - obj->getPy()) * (py - obj->getPy()) ) +  ((px - obj->getPx() ) * (px - obj->getPx() ))) ; 
+
+			if(distance < radius + obj->getRadius() )
+			{
+				isCollision = true;
+				isBody = true;
+
+				return true;
+			}
+
+			isCollision = false;
+			isBody = false;
+			isAttack = false;
+			isDefend = false;
+			isWall = false;
+
+			return false;
+		
+		};
+
+		bool* getAvailableMoves()
 		{
-			return needToResize;
+			bool moves[] = {canMoveUp, canMoveDown, canMoveLeft, canMoveRight};
+			return moves;
 		}
 
-		double getScale()
+		void update(Sprite* s){ }
+
+		void update()
 		{
-			return scale;
+			px += velX;
+			py += velY;
+
+			if(!isCollision)
+			{
+				 canMoveUp = true;
+				 canMoveDown = true;
+				 canMoveLeft = true;
+				 canMoveRight = true;
+			}
+
+			/*glTranslate(player1X, player2Y, 0);
+			glRotatef(angle1 * (180/PI), 0, 0, 1);
+			glutSolidSphere(10, 20,20);
+			if (keyStates['e']){
+			  attack();
+			 }
+			glRotatef(-(angle1 * (180/PI)), 0, 0, 1);
+			 glTranslatef(-p1X, -p1Y,0);
+			 */
+			
+			retractArm();
+			balls.shiftGroup(velX, velY);	
 		}
 
-		bool AmoebaCollision( Amoeba* other);
-
-		void getAvailableMoves( bool moves[4])
+		std::string getIdentifier()
 		{
-			moves[0] = canMoveUp;
-			moves[1] = canMoveDown;
-			moves[2] = canMoveLeft;
-			moves[3] = canMoveRight;
+			return identifier;
 		}
 
-		void getAttackData(double attack[3])
+		void collision(Sprite *obj)
 		{
-			attack[0] = attackFistPx;
-			attack[1] = attackFistPy;
-			attack[2] = attackFistRadius;
+
+			velX = 0;
+			velY = 0;
+
+			if(isBody)
+			{
+
+				colPx = obj->getPx();
+				colPy = obj->getPy();
+
+				colAngle = (-1) * ( ( py - colPy) / (px - colPx));
+
+				//printf("[%f: %f]" , colPx, colPy);
+				//printf("[%f: %f]" , px, py);
+
+				if(px < colPx && py < colPy)
+				{
+					canMoveDown = false;
+					canMoveRight = false;
+					//canMoveUp = true;
+					//canMoveLeft = true;
+				}
+				else if( px < colPx && py > colPy)
+				{
+					canMoveRight = false;
+					canMoveUp = false;
+					//canMoveDown = true;
+					//canMoveLeft = true;
+				}
+				else if(px > colPx && py < colPy)
+				{
+					canMoveDown = false;
+					canMoveLeft = false;
+					//canMoveUp = true;
+					//canMoveRight = true;
+				}
+				else if(px > colPx && py > colPy)
+				{
+					canMoveLeft = false;
+					canMoveUp = false;
+					//canMoveDown = true;
+					//canMoveRight = true;
+				}
+				else if(px == colPx && py < colPy)
+				{
+					canMoveDown = false;
+					//canMoveRight = true;
+					//canMoveLeft = true;
+					//canMoveUp = true;
+				}
+				else if(px == colPx && py > colPy)
+				{
+					canMoveUp = false;
+					//canMoveRight = true;
+					//canMoveLeft = true;
+					//canMoveDown = true;
+				}
+				else if( px < colPx && py == colPy)
+				{
+					canMoveRight = false;
+					//canMoveLeft = true;
+					//canMoveDown = true;
+					//canMoveUp = true;
+				}
+				else if( px > colPx && py == colPy)
+				{
+					canMoveLeft = false;
+					//canMoveRight = true;
+					//canMoveDown = true;
+					//canMoveUp = true;
+				}
+			}
 		}
-
-		void getDefendData(double defend[3])
-		{
-			defend[0] =  defendFistPx;
-			defend[1] = defendFistPy;
-			defend[2] = defendFistRadius;
-		}
-
-		void update();
-
-
-		void collision(Sprite *obj);
 
 		void setVelx( double x){
 			velX = x;
@@ -172,80 +266,128 @@ class Amoeba : public Sprite  {
 			}
 		}
 
-		void incAngle()
-		{
-			//radAngle+=20;
-		}
-
-		void decAngle()
-		{
-			//radAngle-=20;
-		}
-
-		void morph()
-		{
-			if(!morphBall)
+			void incAngle()
 			{
-				
-				morphBallTimer = clock();
-
-				if(velX != 0 || velY != 0)
-				{
-					morphBall = true;
-
-					if(velX > 0 && velY > 0)//Up-Right
-					{
-						balls.addMetaball(new Metaball2D(px + radius + velX, py + radius + velY, 10));
-					}
-					else if(velX > 0 && velY < 0)//Down-Right
-					{
-						balls.addMetaball(new Metaball2D(px + radius + velX, py - radius + velY, 10));
-					}
-					else if(velX < 0 && velY > 0)//Up-Left
-					{
-						balls.addMetaball(new Metaball2D(px - radius + velX, py + radius + velY, 10));
-					}
-					else if(velX < 0 && velY < 0)//Down-Left
-					{
-						balls.addMetaball(new Metaball2D(px - radius + velX, py - radius + velY, 10));
-					}
-					else if(velX == 0 && velY > 0)//Up
-					{
-						balls.addMetaball(new Metaball2D(px, py + radius + velY, 10));
-					}
-					else if(velX == 0 & velY < 0)//Bottom
-					{
-						balls.addMetaball(new Metaball2D(px, py - radius + velY, 10));
-					}
-					else if(velX > 0 && velY == 0)//Right
-					{
-						balls.addMetaball(new Metaball2D(px + radius + velX, py, 10));
-					}
-					else//Left
-					{
-						balls.addMetaball(new Metaball2D(px - radius + velX, py, 10));
-					}
-				}
-				
+				radAngle+=20;
 			}
+
+			void decAngle()
+			{
+				radAngle-=20;
+			}
+
+		void extendAttackArm()
+		{
+			if(lslope == 0)
+			{
 			
-			if(morphBall && clock() - morphBallTimer > 400)
+				lslope = (-1) * ( ( leftMy - py) / (leftMx - px) );
+
+
+				if(leftMx < px)
+				{
+					attackSpacing1 = -70;
+					attackSpacing2 = -90;
+					attackSpacing3 = -110;	
+				}
+				else
+				{
+					attackSpacing1 = 70;
+					attackSpacing2 = 90;
+					attackSpacing3 = 110;
+				}				
+
+				
+				if(!attackActive)
+				{
+						attackActive = true;
+						attackArmTimer = time(NULL);
+
+						attackArm = new Metaball2DGroup();
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope)*attackSpacing1, py + sin(lslope)*(attackSpacing1), 3.0 ,true));
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope) *attackSpacing2, py + sin(lslope)*(attackSpacing2),3.0, true));
+						attackArm->addMetaball(new Metaball2D(px + cos(lslope)* attackSpacing3, py + sin(lslope)*(attackSpacing3),3.0, true));
+						balls.addSubgroup(attackArm);
+
+						attackFistPx = px + cos(lslope)*attackSpacing3;
+						attackFistPy = py + sin(lslope)*attackSpacing3;
+						attackFistRadius = 3;
+
+				}	
+			}
+		}
+		
+
+			
+		
+
+
+
+		void extendDefendArm()
+		{
+			if(rslope == 0)
 			{
-				morphBallTimer = 0;
-				morphBall = false;
-				balls.popMetaball();
+
+				rslope = (-1) * ( ( rightMy - py) / (rightMx - px) );
+
+				if(rightMx < px)
+				{
+					defendSpacing1 = -70;
+					defendSpacing2 = -90;
+					defendSpacing3 = -110;
+
+					
+				}
+				else
+				{
+					defendSpacing1 = 70;
+					defendSpacing2 = 90;
+					defendSpacing3 = 110;
+
+
+				}
+
+				if(!defendActive)
+				{
+						defendActive = true;
+						defendArmTimer = time(NULL);
+						defendArm = new Metaball2DGroup();
+				
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing1, py + sin(rslope) *(defendSpacing1), 3.0 ,false));
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing2, py + sin(rslope) *(defendSpacing2),3.0, false));
+						defendArm->addMetaball(new Metaball2D(px + cos(rslope)* defendSpacing3, py + sin(rslope)*(defendSpacing3),3.0 , false));
+						balls.addSubgroup(defendArm);
+
+						defendFistPx = px + cos(rslope)*defendSpacing3;
+						defendFistPy = py + sin(rslope)*defendSpacing3;
+						defendFistRadius = 3;
+				}
+			}
+
+
+		}
+		
+
+		void retractArm()
+		{
+			if(attackActive && time(NULL) - attackArmTimer > 0.25)
+			{
+				balls.popSubgroup();
+				lslope = 0;
+				attackArm = NULL;
+				attackActive = false;
+			}
+
+			if(defendActive && time(NULL) - defendArmTimer > 7)
+			{
+				balls.popSubgroup();
+				rslope = 0;
+				defendArm = NULL;
+				defendActive = false;
+
 			}
 
 		}
-
-		void extendAttackArm();
-
-		void extendDefendArm();		
-
-		void retractDefendArm();
-		void retractAttackArm();
-
-		void retractArm();
 };
 
 #endif

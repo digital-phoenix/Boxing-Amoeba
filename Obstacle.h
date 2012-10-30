@@ -6,9 +6,7 @@
 class Obstacle : Sprite  {
 	public:
 		void draw(){};
-		void collision(Sprite*){};
+		bool collision(Sprite*){};
 		void update(){};
 };
-
-
 #endif
