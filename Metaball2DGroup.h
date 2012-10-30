@@ -28,7 +28,7 @@ class Metaball2DGroup
 private:
 	double px,py;//point x and y
 	std::list<Metaball2D>balls;
-	std::list<Metaball2DGroup>subgroups;
+	std::list<Metaball2DGroup*>subgroups;
 	std::list<triangle>blocks[16];
 	bool discovered [NUM_GRIDS][NUM_GRIDS];
 	double values[NUM_GRIDS + 1][NUM_GRIDS + 1];
@@ -48,6 +48,8 @@ public:
 
 	}
 
+	Metaball2DGroup(){ };
+
 	void addMetaball(Metaball2D* ball)
 	{
 		balls.push_back(*ball);
@@ -60,7 +62,7 @@ public:
 	
 	void addSubgroup( Metaball2DGroup *other)
 	{
-		subgroups.push_back(*other);
+		subgroups.push_back(other);
 	}
 	
 	void getRGB( int *r, int *g, int *b){
@@ -71,11 +73,9 @@ public:
 
 	std::vector<MetaballDrawData> getDrawData(){
 		std::vector<MetaballDrawData> ballData;
-		if( subgroups.size() > 1){
-			ballData = subgroups.front().getDrawData();
-		}
-		for( std::list<Metaball2DGroup>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
-			std::vector<MetaballDrawData> other = it->getDrawData();
+
+		for( std::list<Metaball2DGroup*>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
+			std::vector<MetaballDrawData> other = (*it)->getDrawData();
 			for( int i=0; i < other.size(); i++){
 				ballData.push_back( other[i]);
 			}
@@ -122,8 +122,8 @@ public:
 
 	double evaluateSubGroups( int x, int y){
 		double score = 0;
-		for( std::list<Metaball2DGroup>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
-			score += it->evaluatePoint(x, y);
+		for( std::list<Metaball2DGroup*>::iterator it = subgroups.begin(); it != subgroups.end(); it++){
+			score += (*it)->evaluatePoint(x, y);
 			if( score >= THRESHOLD )
 				return score;
 		}
@@ -260,6 +260,12 @@ public:
 		}
 	}
 
+	void setRadius(double val){
+		for(std::list<Metaball2D>::iterator it = balls.begin(); it != balls.end(); it++){
+			it->setRadius(val);
+		}
+	}
+
 	void draw(){
 		int ballsCleared = 0;
 		std::vector<MetaballDrawData> ballData = getDrawData();
@@ -365,9 +371,9 @@ public:
 			it->shift(x, y);
 		}
 
-		for(std:: list<Metaball2DGroup>:: iterator it = subgroups.begin(); it != subgroups.end(); it++)
+		for(std:: list<Metaball2DGroup*>:: iterator it = subgroups.begin(); it != subgroups.end(); it++)
 		{
-			it->shiftGroup(x,y);
+			(*it)->shiftGroup(x,y);
 		}
 	}
 

@@ -13,8 +13,6 @@ AI::AI(double px, double py, double radius,double scale, Amoeba* player, bool no
 	this->scale = scale;
 
 	needToResize = false;
-	morphBall = false;
-	morphBallTimer = 0;
 
 	isHit  = false;
 	isHitTimer = 0;
@@ -77,49 +75,58 @@ void AI::update()
 
 	}
 
-		
-	if(isBody)//Allows movement away for both AI and Amoeba
-	{
-		if(player->getPx() > px)
-		{
-			velX = -0.2;
-		}
-		else
-		{
-			velX = 0.2;
-		}
-
-		if(player->getPy() > py)
-		{
-			velY = -0.2;
-		}
-		else
-		{
-			velY = 0.2;
-		}
-	}
-	else if(!isCollision)
+	if(!isCollision)
 	{
 
 		if(player->getPx() > px)
 		{
-			velX = 0.2;
+			if( velX < 2)
+				velX += 0.2;
 		}
 		else
 		{
-			velX = -0.2;
+			if( velX > -2)
+				velX += -0.2;
 		}
 
 		if(player->getPy() > py)
 		{
-			velY = 0.2;
+			if( velY < 2)
+				velY += 0.2;
 		}
 		else
 		{
-			velY = -0.2;
+			if( velY > -2)
+				velY += -0.2;
+		}
+	}
+	else if(isBody)
+	{
+		if(player->getPx() > px)
+		{
+			if( velX < 2)
+				velX += -0.5;
+		}
+		else
+		{
+			if( velX > -2)
+				velX += 0.5;
+		}
+
+		if(player->getPy() > py)
+		{
+			if( velY < 2)
+				velY += -0.5;
+		}
+		else
+		{
+			if( velY > -2)
+				velY += 0.5;
 		}
 
 	}
+
+	
 
 	Amoeba::update();
 			
@@ -139,7 +146,7 @@ void AI::extendAttackArm()
 		attackSpacing3 = attackSpacing2 + radius/2;
 
 
-		if(leftMx < px)
+		if(player->getPx() < px)
 		{
 
 			attackSpacing1 = (-1)*attackSpacing1;
@@ -181,7 +188,7 @@ void AI::extendDefendArm()
 		defendSpacing2 = defendSpacing1 + radius/2;
 		defendSpacing3 = defendSpacing2 + radius/2;
 
-		if(rightMx < px)
+		if(player->getPx() < px)
 		{
 			defendSpacing1 = (-1)*defendSpacing1;
 			defendSpacing2 = (-1)*defendSpacing2;

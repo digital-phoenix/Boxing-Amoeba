@@ -3,6 +3,7 @@
 
 #include"Sprite.h"
 #include"Metaball2DGroup.h"
+#include"Obstacle.h"
 #include <string>
 #include <time.h>
 
@@ -16,6 +17,7 @@ class Amoeba : public Sprite  {
 		time_t isHitTimer;
 		bool morphBall;
 		clock_t morphBallTimer;
+
 		double velX, velY;
 		double px, py;
 		double radius;
@@ -250,5 +252,4 @@ class Amoeba : public Sprite  {
 
 		void retractArm();
 };
-
 #endif

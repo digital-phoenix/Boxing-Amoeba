@@ -2,7 +2,7 @@
 
 Amoeba::Amoeba():balls(0.0,0.0,1.0){}
 
-Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal) : balls(0.0,0.0,1.0)
+Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal) : balls(0.0,1.0,1.0)
 {
 	velX = 0;
 	velY = 0;
@@ -13,8 +13,6 @@ Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal) :
 	this->normal = normal;
 	this->scale = scale;
 	needToResize = false;
-	morphBall = false;
-	morphBallTimer = 0;
 	isHit  = false;
 	isHitTimer = 0;
 
@@ -89,57 +87,79 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 	other->getAttackData(attackData);
 
 	/*Wall Collision Test*/
-	if(px-radius <= 5 || px+radius >= screenRight - 5)
+	if(px-radius < 0 || px+radius > screenRight)
 	{
-				isWall = true;
-				velX = -velX;		
+		if( px + radius > screenRight){
+			balls.shiftGroup(screenRight - px - radius , 0);
+			px += screenRight - px - radius;
+		} else if(px - radius < 0)
+		{
+			balls.shiftGroup(-px +radius, 0);
+			px += -px + radius;		
+		}
+		velX = -velX;		
 	}
 
-	if(py - radius <= 5 || py + radius >= screenTop - 5)
+	if(py - radius < 0 || py + radius > screenTop)
 	{
-				isWall = true;
-				velY = -velY;			
+		if(py + radius > screenTop){
+			balls.shiftGroup(0, screenTop - py - radius);
+			py += screenTop - py - radius;
+		} else if(py - radius < 0)
+		{
+			balls.shiftGroup(0, -py +radius);
+			py += -py + radius;		
+		}
+
+		velY = -velY;			
 	}	 
-
-	if(isWall)
-	{
-		isCollision = true;
-		return true;
-	}
 				
 	if(attackData[0] != 0 && attackData[2] == scale*3)
 	{
 
-		if(!isHit)
+		distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) + ((px - attackData[0]) * (px - attackData[0])))) ;
+
+		colPx = attackData[0];
+		colPy = attackData[1];
+
+		if(distance < radius + attackData[2] + 5)
 		{
-			isHit = true;
-			isHitTimer = time(NULL);
-			/*Attack Collision Test*/		
-			distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) +  ((px - attackData[0]) * (px - attackData[0])))) ; 
-			
-			colPx = attackData[0];
-			colPy = attackData[1];
+			retractAttackArm();
+			retractDefendArm();
 
-			if(distance < radius + attackData[2] + 10)
+			balls.decreaseRadius(10);
+			if( radius > 10)
 			{
-				retractAttackArm();
-				retractDefendArm();
-
-				balls.decreaseRadius(10);
-				if( radius > 10)
-				{
-					radius -= 10;
-				}
-				else
-				{
-					radius = 5;
-				}
-				
-				isAttack = true;
-				return true;
+				radius -= 10;
 			}
+			else
+			{
+				radius = 5;
+			}
+
+			if(px < colPx)
+			{
+				velX = -10;
+			}
+			else
+			{
+				velX = 10;
+			}
+
+			if(py < colPy)
+			{
+				velY = -10;
+			}
+			else
+			{
+				velY = 10;
+			}
+
+			isAttack = true;
+			return true;
 		}
 	}
+	
 
 	/*Defend Collision Test*/
 	double DefendData[3]; 
@@ -154,25 +174,25 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 		colPx = DefendData[0];
 		colPy = DefendData[1];
 
-		if(distance < radius + DefendData[2] + 10)
+		if(distance < radius + DefendData[2] + 5)
 		{
 
 			if(px < colPx)
 			{
-				velX = -20;
+				velX = -10;
 			}
 			else
 			{
-				velX = 20;
+				velX = 10;
 			}
 
 			if(py < colPy)
 			{
-				velY = -20;
+				velY = -10;
 			}
 			else
 			{
-				velY = 20;
+				velY = 10;
 			}
 			isDefend = true;
 			isCollision = true;
@@ -200,19 +220,85 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 	return isCollision;
 }
 
-
-
 void Amoeba::collision(Sprite* obj)
 { 
 	if( obj->getIdentifier() == AI_TYPE || obj->getIdentifier() == AMOEBA_TYPE)
 	{
 		 AmoebaCollision( (Amoeba*) obj);
 	}
+	if( obj->getIdentifier() == OBSTACLE_TYPE){
+		Obstacle *ob = (Obstacle*)obj;
+		std::pair<double, double>positions[2];
+		double radiuses[2];
+		ob->getPositions( positions);
+		ob->getRadiuses(radiuses);
+		
+		for( int i = 0; i<2; i++){
+			if( (px - positions[i].first) * (px - positions[i].first) + (py - positions[i].second) * (py - positions[i].second) <= radius * radius + radiuses[i] * radiuses[i] - 5){
+				isCollision = true;
+				retractAttackArm();
+				retractDefendArm();
+				balls.decreaseRadius(10);
+				if( radius > 10)
+				{
+					radius -= 10;
+				}
+				else
+				{
+					radius = 5;
+				}
+				if(px < positions[i].first)
+				{
+					velX = -10;
+				}
+				else
+				{
+					velX = 10;
+				}
+
+				if(py < positions[i].second)
+				{
+					velY = -10;
+				}
+				else
+				{
+					velY = 10;
+				}
+
+			}
+		}
+	}
+
 };
 
 void Amoeba::update()
 {
-	morph();
+
+	if( radius <= 5){
+		radius = 50;
+		balls.setRadius(50);
+		balls.shiftGroup( 250 - px, 250 - py);
+		px = 250;
+		py = 250;
+		velX = 0;
+		velY = 0;
+	}
+
+	if( velX > 0.1){
+		velX -= 0.1;
+	} else if( velX < -0.1){
+		velX+= 0.1;
+	}else{
+		velX = 0;
+	}
+
+	if( velY > 0.1){
+		velY -= 0.1;
+	} else if( velY < -0.1){
+		velY+= 0.1;
+	}else{
+		velY = 0;
+	}
 
 	px += velX;
 	py += velY;
@@ -232,7 +318,6 @@ void Amoeba::update()
 			
 	retractArm();
 	balls.shiftGroup(velX, velY);
-
 
 }
 

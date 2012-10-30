@@ -9,6 +9,7 @@
 
 #define AMOEBA_TYPE 1
 #define AI_TYPE 2
+#define OBSTACLE_TYPE 3
 
 class Sprite
 {
