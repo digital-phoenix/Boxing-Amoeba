@@ -14,6 +14,9 @@ AI::AI(double px, double py, double radius,double scale, Amoeba* player, bool no
 
 	needToResize = false;
 
+	isHit  = false;
+	isHitTimer = 0;
+
 	attackArm = NULL;
 
 	attackActive = false;
@@ -113,21 +116,17 @@ void AI::extendAttackArm()
 		lslope = ( ( player->getPy() - py) / (player->getPx() - px) );
 		double angle = atan(lslope);
 
+		attackSpacing1 = radius + radius/2;
+		attackSpacing2 = attackSpacing1 + radius/2;
+		attackSpacing3 = attackSpacing2 + radius/2;
 
-		//double angle = radian * 180/3.1415962;
-		//printf("%f\n", angle);
 
-		if(player->getPx() < px)
+		if(leftMx < px)
 		{
-			attackSpacing1 = -70;
-			attackSpacing2 = -90;
-			attackSpacing3 = -110;
-		}
-		else
-		{
-			attackSpacing1 = 70;
-			attackSpacing2 = 90;
-			attackSpacing3 = 110;
+
+			attackSpacing1 = (-1)*attackSpacing1;
+			attackSpacing2 = (-1)*attackSpacing2;
+			attackSpacing3 = (-1)*attackSpacing3;
 		}
 
 
@@ -159,18 +158,18 @@ void AI::extendDefendArm()
 		rslope =( ( player->getPy() - py) / (player->getPx() - px) );
 		double angle = atan(rslope);
 
-		if(player->getPx() < px)
+		
+		defendSpacing1 = radius + radius/2;
+		defendSpacing2 = defendSpacing1 + radius/2;
+		defendSpacing3 = defendSpacing2 + radius/2;
+
+		if(rightMx < px)
 		{
-			defendSpacing1 = -70;
-			defendSpacing2 = -90;
-			defendSpacing3 = -130;
+			defendSpacing1 = (-1)*defendSpacing1;
+			defendSpacing2 = (-1)*defendSpacing2;
+			defendSpacing3 = (-1)*defendSpacing3;
 		}
-		else
-		{
-			defendSpacing1 = 70;
-			defendSpacing2 = 90;
-			defendSpacing3 = 130;
-		}
+		
 
 		if(!defendActive && (defendWaitTimer - time(NULL) <= 0 ))
 		{

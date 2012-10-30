@@ -13,6 +13,8 @@ Amoeba::Amoeba(double px, double py, double radius, double scale, bool normal) :
 	this->normal = normal;
 	this->scale = scale;
 	needToResize = false;
+	isHit  = false;
+	isHitTimer = 0;
 
 	attackArm = NULL;
 
@@ -114,25 +116,31 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 				
 	if(attackData[0] != 0 && attackData[2] == scale*3)
 	{
-		/*Attack Collision Test*/		
-		distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) +  ((px - attackData[0]) * (px - attackData[0])))) ; 
+
+		if(!isHit)
+		{
+			isHit = true;
+			isHitTimer = time(NULL);
+			/*Attack Collision Test*/		
+			distance = sqrt(((py - attackData[1] ) * (py - attackData[1]) +  ((px - attackData[0]) * (px - attackData[0])))) ; 
 			
-		colPx = attackData[0];
-		colPy = attackData[1];
+			colPx = attackData[0];
+			colPy = attackData[1];
 
 		if(distance < radius + attackData[2] + 5)
-		{
-			retractAttackArm();
-			retractDefendArm();
-			balls.decreaseRadius(10);
-			if( radius > 10)
 			{
-				radius -= 10;
-			}
-			else
-			{
-				radius = 5;
-			}
+				retractAttackArm();
+				retractDefendArm();
+
+				balls.decreaseRadius(10);
+				if( radius > 10)
+				{
+					radius -= 10;
+				}
+				else
+				{
+					radius = 5;
+				}
 						if(px < colPx)
 			{
 				velX = -10;
@@ -151,13 +159,15 @@ bool Amoeba::AmoebaCollision( Amoeba* other){
 				velY = 10;
 			}
 
-			isAttack = true;
-			return true;
+				isAttack = true;
+				return true;
+			}
 		}
 	}
 
 	/*Defend Collision Test*/
 	double DefendData[3]; 
+
 	other->getDefendData(DefendData);
 			
 	if(DefendData[0] != 0 && DefendData[2] == scale*12)
@@ -304,6 +314,11 @@ void Amoeba::update()
 		canMoveLeft = true;
 		canMoveRight = true;
 	}
+
+	if(time(NULL) - isHitTimer > 3)
+	{
+		isHit = false;
+	}
 			
 	retractArm();
 	balls.shiftGroup(velX, velY);
@@ -318,18 +333,18 @@ void Amoeba::extendDefendArm()
 		rslope = ( ( rightMy - py) / (rightMx - px) );
 		double angle = atan(rslope);
 
+		defendSpacing1 = radius + radius/2;
+		defendSpacing2 = defendSpacing1 + radius/2;
+		defendSpacing3 = defendSpacing2 + radius/2;
+
 		if(rightMx < px)
 		{
-			defendSpacing1 = -70;
-			defendSpacing2 = -90;
-			defendSpacing3 = -130;
+			defendSpacing1 = (-1)*defendSpacing1;
+			defendSpacing2 = (-1)*defendSpacing2;
+			defendSpacing3 = (-1)*defendSpacing3;
 		}
-		else
-		{
-			defendSpacing1 = 70;
-			defendSpacing2 = 90;
-			defendSpacing3 = 130;
-		}
+		
+		
 
 		if(!defendActive && (defendWaitTimer - time(NULL) <= 0 ))
 		{
@@ -364,19 +379,19 @@ void Amoeba::extendAttackArm()
 		lslope = ( ( leftMy - py) / (leftMx - px) );
 		double angle = atan(lslope);
 
+
+		attackSpacing1 = radius + radius/2;
+		attackSpacing2 = attackSpacing1 + radius/2;
+		attackSpacing3 = attackSpacing2 + radius/2;
+
+
 		if(leftMx < px)
 		{
-			attackSpacing1 = -70;
-			attackSpacing2 = -90;
-			attackSpacing3 = -110;
-		}
-		else
-		{
-			attackSpacing1 = 70;
-			attackSpacing2 = 90;
-			attackSpacing3 = 110;
-		}
 
+			attackSpacing1 = (-1)*attackSpacing1;
+			attackSpacing2 = (-1)*attackSpacing2;
+			attackSpacing3 = (-1)*attackSpacing3;
+		}
 
 
 		if(!attackActive)
